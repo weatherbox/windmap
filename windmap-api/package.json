@@ -1,0 +1,16 @@
+{
+  "name": "windmap-surf",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "ejs": "^2.1.4",
+    "express": "~4.9.0",
+    "mongodb": "^1.4.28",
+    "underscore": "^1.8.3"
+  },
+  "engines": {
+    "node": "0.10.x"
+  }
+}
