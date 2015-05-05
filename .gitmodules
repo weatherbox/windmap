@@ -1,0 +1,6 @@
+[submodule "windmap-api"]
+	path = windmap-api
+	url = https://github.com/tattii/windmap-api.git
+[submodule "windmap-data"]
+	path = windmap-data
+	url = https://github.com/tattii/windmap-data.git
