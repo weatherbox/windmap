@@ -22,7 +22,7 @@
 		<div id='map'></div>
 		<div id="loading"></div>
 		<div id="info">
-			<h1>2015-01-22 12:00 JST / Surface / MSM</h1>
+			<h1></h1>
 		</div>
 		<div id="wind-dialog"></div>
 
@@ -74,6 +74,8 @@
 							console.log("get wind data: " + elapsed + "ms");
 							console.log(data);
 							$("#loading").hide();
+							var refTime = new Date(data.header.refTime);
+							$("h1").text(refTime.toString() + " / Surface / MSM");
 							callback(data, s);
 						}
 					});
