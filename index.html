@@ -4,7 +4,7 @@
 		<meta charset=utf-8 />
 		<title>WindMap</title>
 		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-		<link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.css' rel='stylesheet' />
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v1.0.0-rc.3/leaflet.css" />
 		<style>
 			body { margin:0; padding:0; }
 			#map { position:absolute; top:0; bottom:0; width:100%; z-index:1; cursor:default; }
@@ -26,21 +26,21 @@
 		</div>
 		<div id="wind-dialog"></div>
 
+		<script src="http://cdn.leafletjs.com/leaflet/v1.0.0-rc.3/leaflet.js"></script>
+		<script src="streamline.js/lib/underscore.js"></script>
+		<script src="streamline.js/streamline.js"></script>
+		<script src="streamline.js/leaflet-streamline.js"></script>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-		<script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
-		<script src="js/underscore.js"></script>
-		<script src="js/stream.js"></script>
 		<script src="js/sonic.js"></script>
 		<script>
 			$(function() {
-				// map
 				var map_id = 'tattii.j1a9fl0a';
-				var mapboxTiles = L.tileLayer(
+				var mapboxTiles = new L.tileLayer(
 					'https://{s}.tiles.mapbox.com/v3/' + map_id + '/{z}/{x}/{y}.png',
 					{ attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Mapbox</a>' }
 				);
 
-				var map = L.map('map', {
+				var map = new L.map('map', {
 						center: [35, 136],
 						zoom: 9,
 						minZoom: 5,
@@ -48,9 +48,12 @@
 						attributionControl: false
 					})
 					.addLayer(mapboxTiles);
-				map.zoomControl.setPosition("bottomleft");
 
 				loading();
+
+				var streamline = new L.Streamline(getWindData);
+				streamline.addTo(map);
+
 				var wind_field;
 				var req;
 				function getWindData(callback, s) {
@@ -80,94 +83,6 @@
 						}
 					});
 				}
-
-				
-				var StreamLayer = L.Class.extend({
-					initialize: function(getWindData) {
-						this._getWindData = getWindData
-					},
-
-					onAdd: function(map) {
-						this._map = map;
-						this._width  = map.getSize().x;	
-						this._height = map.getSize().y;	
-
-						this._el = L.DomUtil.create('div', 'stream-layer leaflet-zoom-hide');
-						map.getPanes().overlayPane.appendChild(this._el);
-
-						var layer = document.getElementsByClassName("stream-layer")[0];
-
-						var maskLayer = document.createElement("canvas");
-						maskLayer.id = "stream-layer-mask";
-						layer.appendChild(maskLayer);
-						var maskCv = document.getElementById("stream-layer-mask");
-						this._maskCtx = maskCv.getContext('2d');
-						maskCv.width = this._width;
-						maskCv.height = this._height;
-
-						var streamLayer = document.createElement("canvas");
-						streamLayer.id = "stream-layer-stream";
-						layer.appendChild(streamLayer);
-						var streamCv = document.getElementById("stream-layer-stream");
-						this._streamCtx = streamCv.getContext('2d');
-						streamCv.width = this._width;
-						streamCv.height = this._height;
-						this._streamCtx.globalAlpha = 0.9;
-
-
-						this.stream = new Stream({ x:[0, this._width], y:[0, this._height] }, this._streamCtx, this._maskCtx);
-
-						map.on('viewreset', this._reset, this);
-						map.on('moveend', this._reset, this);
-						this._reset();
-					},
-
-					onRemove: function(map) {
-						map.getPanes().overlayPane.removeChild(this._el);
-						map.off('viewreset', this._reset, this);
-						map.off('moveend', this._reset, this);
-					},
-
-					_reset: function() {
-						L.DomUtil.setOpacity(this._el, 0);
-						wind_field = null;
-						hidePointWind();
-
-						this._getWindData(function(wind_data, t) {
-							// projection
-							var b = t._map.getBounds();
-							var proj = new SimpleProjection(
-								{ x:0,   y:0,              lat:b.getNorth(), lng:b.getWest() },
-								{ x:t._width, y:t._height, lat:b.getSouth(), lng:b.getEast() }
-							);
-
-							t._streamCtx.clearRect(0, 0, t._width, t._height);
-						//	t._maskCtx.clearRect(0, 0, t._width, t._height);
-
-							// stream
-							var scale = [
-								0.3, //5
-								0.4,
-								0.6,
-								0.8,
-								1.0, //9
-							];
-							wind_field = new GribWind(wind_data);
-							t.stream.setField(wind_field, proj, scale[t._map.getZoom()-5]);
-							t.stream.animate();
-
-							// move canvas position
-							var pos = t._map.latLngToLayerPoint(b.getNorthWest());
-							L.DomUtil.setPosition(t._el, pos);
-							L.DomUtil.setOpacity(t._el, 1.0);
-						}, this);
-					}
-
-
-
-				});
-				map.addLayer(new StreamLayer(getWindData));
-
 
 				var circleIcon = L.divIcon({
 					iconSize: [20, 20],
