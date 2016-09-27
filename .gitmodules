@@ -1,6 +1,6 @@
-[submodule "windmap-api"]
-	path = windmap-api
-	url = https://github.com/tattii/windmap-api.git
-[submodule "windmap-data"]
-	path = windmap-data
-	url = https://github.com/tattii/windmap-data.git
+[submodule "streamline.js"]
+	path = streamline.js
+	url = git@github.com:tattii/streamline.js.git
+[submodule "grib2tiles"]
+	path = grib2tiles
+	url = git@github.com:weatherbox/grib2tiles.git
