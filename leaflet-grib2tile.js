@@ -22,6 +22,8 @@ L.Grib2tile = L.Class.extend({
 		// tile bounds lat / lon
 		this._tileBoundsLat = options.bounds.getNorth() - options.bounds.getSouth();
 		this._tileBoundsLon = options.bounds.getEast() - options.bounds.getWest();
+
+		this._origin = options.bounds.min;
 	},
 
 	getWindField: function (bounds, zoom){
@@ -32,12 +34,65 @@ L.Grib2tile = L.Class.extend({
 
 	},
 
-	getWindVector: function (lat, lon){
+	getWindVector: function (latlon){
+		return this._getVector(latlon);
+	},
+
+	getValue: function (latlon){
 
 	},
 
-	getValue: function (lat, lon){
 
+	/*
+	 * @private get grib values
+	 *
+	 */
+	_getVector: function (latlng) {
+		var lat = latlng.lat,
+			lng = latlng.lng;
+
+		var nz = Math.pow(2, this._tileZoom),
+			tlat = this._tileBoundsLat / nz,
+			tlon = this._tileBoundsLon / nz,
+			dlat = tlat / this.options.tileSize.y,
+			dlon = tlon / this.options.tileSize.x;
+
+		// tile coords
+		var tx = Math.floor((lng - this._origin.x) / tlon);
+		var ty = Math.floor((this._origin.y - lat) / tlat);
+
+		// tile origin
+		var tox = this._origin.x + tlon * tx;
+		var toy = this._origin.y - tlat * ty;
+
+		// tile grid point
+		var x = Math.floor((lng - tox) / dlon);
+		var y = Math.floor((toy - lat) / dlat);
+
+		// tile grid relative position
+		var dx = (lng - (tox + dlon * x)) / dlon;
+		var dy = ((toy - dlat * y) - lat) / dlat;
+
+		return this._bilinearInterpolateVector(
+			dx, dy,
+			v(x, y), v(x+1, y), v(x, y+1), v(x+1, y+1)
+		);
+
+	},
+
+	// util to access grid wind data
+	v: function (x, y) {
+		var n = nlng * y + x;
+		return [ u_data[n], v_data[n] ];
+	}
+
+	_bilinearInterpolateVector: function (x, y, p00, p10, p01, p11) {
+		var rx = (1 - x);
+		var ry = (1 - y);
+		var a = rx * ry,  b = x * ry,  c = rx * y,  d = x * y;
+		var u = p00[0] * a + p10[0] * b + p01[0] * c + p11[0] * d;
+		var v = p00[1] * a + p10[1] * b + p01[1] * c + p11[1] * d;
+		return [ u, v ];
 	},
 
 
@@ -104,6 +159,7 @@ L.Grib2tile = L.Class.extend({
 			}
 		}
 
+		this._tileZoom = tileZoom;
 		this._callback = callback;
 
 		if (queue.length !== 0){
