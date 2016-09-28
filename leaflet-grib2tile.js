@@ -62,8 +62,8 @@ L.Grib2tile = L.Class.extend({
 			dlon = tlon / this._tnx;
 
 		// tile coords
-		var tx = Math.floor((lng - this._origin.lat) / tlon);
-		var ty = Math.floor((this._origin.lng - lat) / tlat);
+		var tx = Math.floor((lng - this._origin.lng) / tlon);
+		var ty = Math.floor((this._origin.lat - lat) / tlat);
 
 		// tile origin
 		var tox = this._origin.lng + tlon * tx;
@@ -78,14 +78,14 @@ L.Grib2tile = L.Class.extend({
 		var dy = ((toy - dlat * y) - lat) / dlat;
 
 		// key to grib2tile data
-		console.log(tx, ty, this._tileZoom);
 		var ukey = this._tileCoordsToKey({ x:tx, y:ty, z:this._tileZoom, e:"UGRD" });
 		var vkey = this._tileCoordsToKey({ x:tx, y:ty, z:this._tileZoom, e:"VGRD" });
 
 		// util to access grid wind data
+		var _this = this;
 		function v (x, y) {
-			var n = this._tnx * y + x;
-			return [ this._tiles[ukey].data[n], this._tiles[vkey].data[n] ];
+			var n = _this._tnx * y + x;
+			return [ _this._tiles[ukey].data[n], _this._tiles[vkey].data[n] ];
 		}
 
 		return this._bilinearInterpolateVector(
