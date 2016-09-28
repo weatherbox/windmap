@@ -26,12 +26,12 @@ L.Grib2tile = L.Class.extend({
 		this._origin = options.bounds.min;
 	},
 
-	getWindField: function (bounds, zoom){
-
+	getWindField: function (bounds, zoom, callback){
+		this._getField("wind", bounds, zoom, callback);
 	},
 
-	getField: function (bounds, zoom){
-
+	getField: function (element, bounds, zoom, callback){
+		this._getField(element, bounds, zoom, callback);
 	},
 
 	getWindVector: function (latlon){
@@ -73,18 +73,21 @@ L.Grib2tile = L.Class.extend({
 		var dx = (lng - (tox + dlon * x)) / dlon;
 		var dy = ((toy - dlat * y) - lat) / dlat;
 
+		// key to grib2tile data
+		var ukey = this._tileCoordsToKey({ x:tx, y:ty, z:this._tileZoom, e:"UGRD" });
+		var vkey = this._tileCoordsToKey({ x:tx, y:ty, z:this._tileZoom, e:"VGRD" });
+
+		// util to access grid wind data
+		function v (x, y) {
+			var n = this.options.tileSize.x * y + x;
+			return [ this._tiles[ukey].data[n], this._tiles[vkey].data[n] ];
+		}
+
 		return this._bilinearInterpolateVector(
 			dx, dy,
 			v(x, y), v(x+1, y), v(x, y+1), v(x+1, y+1)
 		);
-
 	},
-
-	// util to access grid wind data
-	v: function (x, y) {
-		var n = nlng * y + x;
-		return [ u_data[n], v_data[n] ];
-	}
 
 	_bilinearInterpolateVector: function (x, y, p00, p10, p01, p11) {
 		var rx = (1 - x);
@@ -134,27 +137,26 @@ L.Grib2tile = L.Class.extend({
 	},
 
 
-	_getField: function (mapBounds, mapZoom, callback) {
+	_getField: function (element, mapBounds, mapZoom, callback) {
 		if (!mapBounds || !mapZoom) return;
 
 		var tileZoom = this._getTileZoom(mapZoom),
-			tileRange = this._getTileRange(mapBounds, tileZoom),
-			queue = [];
+			tileRange = this._getTileRange(mapBounds, tileZoom);
+		this._queue = [];
 
 		for (var key in this._tiles){
 			this._tiles[key].current = false;
 		}
 
+		// create tile load queue
 		for (var j = tileRange.min.y; j <= tileRange.max.y; j++){
 			for (var i = tileRange.min.x; i <= tileRange.max.x; i++){
-				var coords = new L.Point(i, j);
-				coords.z = tileZoom;
+				if (element == "wind"){
+					this._enqueue({ x:i, y:j, z:tileZoom, e:"UGRD" });
+					this._enqueue({ x:i, y:j, z:tileZoom, e:"VGRD" });
 
-				var tile = this._tiles[this._tileCoordsToKey(coords)];
-				if (tile){
-					tile.current = true;
 				}else{
-					queue.push(coords);
+					this._enqueue({ x:i, y:j, z:tileZoom, e:element });
 				}
 			}
 		}
@@ -163,12 +165,21 @@ L.Grib2tile = L.Class.extend({
 		this._callback = callback;
 
 		if (queue.length !== 0){
-			this._getTiles(queue);
+			this._getTiles(this._queue);
 
 		}else{
 			this._doneLoadingTiles();
 		}
 	},
+
+	_enqueue: function (coords) {
+		var tile = this._tiles[this._tileCoordsToKey(coords)];
+		if (tile){
+			tile.current = true;
+		}else{
+			this._queue.push(coords);
+		}
+	};
 
 	_doneLoadingTiles: function () {
 		this._callback(this);
@@ -213,7 +224,7 @@ L.Grib2tile = L.Class.extend({
 	},
 
 	_tileCoordsToKey: function (coords) {
-		return coords.x + ':' + coords.y + ':' + coords.z;
+		return coords.e + ':' + coords.x + ':' + coords.y + ':' + coords.z;
 	}
 });
 
