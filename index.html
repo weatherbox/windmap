@@ -4,7 +4,7 @@
 		<meta charset=utf-8 />
 		<title>WindMap</title>
 		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v1.0.0-rc.3/leaflet.css" />
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v1.0.0/leaflet.css" />
 		<style>
 			body { margin:0; padding:0; }
 			#map { position:absolute; top:0; bottom:0; width:100%; z-index:1; cursor:default; }
@@ -26,10 +26,12 @@
 		</div>
 		<div id="wind-dialog"></div>
 
-		<script src="http://cdn.leafletjs.com/leaflet/v1.0.0-rc.3/leaflet.js"></script>
+		<script src="http://cdn.leafletjs.com/leaflet/v1.0.0/leaflet.js"></script>
 		<script src="streamline.js/lib/underscore.js"></script>
 		<script src="streamline.js/streamline.js"></script>
 		<script src="streamline.js/leaflet-streamline.js"></script>
+		<script src="grib2tiles/grib2tile.js"></script>
+		<script src="leaflet-grib2tile.js"></script>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 		<script src="js/sonic.js"></script>
 		<script>
@@ -51,38 +53,12 @@
 
 				loading();
 
-				var streamline = new L.Streamline(getWindData);
+				var host = "http://msm-tiles.s3-website-ap-northeast-1.amazonaws.com/";
+				var grib2tile = new L.Grib2tile(host + "tiles/201609221200/201609232200/surface/{e}/{z}/{x}_{y}.bin");
+
+				var streamline = new L.Streamline(grib2tile);
 				streamline.addTo(map);
 
-				var wind_field;
-				var req;
-				function getWindData(callback, s) {
-					$("#loading").show();
-					var b = map.getBounds();
-					var str_bounds = b.getNorth() +","+ b.getWest() +","+ b.getSouth() +","+ b.getEast();
-					var start = Date.now();
-					if (req) req.abort();
-					req = $.ajax({
-						url: "http://windmap-api.herokuapp.com/wind",
-						type: "GET",
-						dataType: "jsonp",
-						data: {
-							bounds: str_bounds,
-							forecastTime: 0,
-							zoom: map.getZoom()
-						},
-						success: function(data, status) {
-							var end = Date.now();
-							var elapsed = end - start;
-							console.log("get wind data: " + elapsed + "ms");
-							console.log(data);
-							$("#loading").hide();
-							var refTime = new Date(data.header.refTime);
-							$("h1").text(refTime.toString() + " / Surface / MSM");
-							callback(data, s);
-						}
-					});
-				}
 
 				var circleIcon = L.divIcon({
 					iconSize: [20, 20],
