@@ -23,7 +23,11 @@ L.Grib2tile = L.Class.extend({
 		this._tileBoundsLat = options.bounds.getNorth() - options.bounds.getSouth();
 		this._tileBoundsLon = options.bounds.getEast() - options.bounds.getWest();
 
-		this._origin = options.bounds.min;
+		this._origin = options.bounds.getNorthWest();
+		this._tnx = options.tileSize.x;
+		this._tny = options.tileSize.y;
+
+		this._tiles = {};
 	},
 
 	getWindField: function (bounds, zoom, callback){
@@ -34,7 +38,7 @@ L.Grib2tile = L.Class.extend({
 		this._getField(element, bounds, zoom, callback);
 	},
 
-	getWindVector: function (latlon){
+	getVector: function (latlon){
 		return this._getVector(latlon);
 	},
 
@@ -54,16 +58,16 @@ L.Grib2tile = L.Class.extend({
 		var nz = Math.pow(2, this._tileZoom),
 			tlat = this._tileBoundsLat / nz,
 			tlon = this._tileBoundsLon / nz,
-			dlat = tlat / this.options.tileSize.y,
-			dlon = tlon / this.options.tileSize.x;
+			dlat = tlat / this._tny,
+			dlon = tlon / this._tnx;
 
 		// tile coords
-		var tx = Math.floor((lng - this._origin.x) / tlon);
-		var ty = Math.floor((this._origin.y - lat) / tlat);
+		var tx = Math.floor((lng - this._origin.lat) / tlon);
+		var ty = Math.floor((this._origin.lng - lat) / tlat);
 
 		// tile origin
-		var tox = this._origin.x + tlon * tx;
-		var toy = this._origin.y - tlat * ty;
+		var tox = this._origin.lng + tlon * tx;
+		var toy = this._origin.lat - tlat * ty;
 
 		// tile grid point
 		var x = Math.floor((lng - tox) / dlon);
@@ -74,12 +78,13 @@ L.Grib2tile = L.Class.extend({
 		var dy = ((toy - dlat * y) - lat) / dlat;
 
 		// key to grib2tile data
+		console.log(tx, ty, this._tileZoom);
 		var ukey = this._tileCoordsToKey({ x:tx, y:ty, z:this._tileZoom, e:"UGRD" });
 		var vkey = this._tileCoordsToKey({ x:tx, y:ty, z:this._tileZoom, e:"VGRD" });
 
 		// util to access grid wind data
 		function v (x, y) {
-			var n = this.options.tileSize.x * y + x;
+			var n = this._tnx * y + x;
 			return [ this._tiles[ukey].data[n], this._tiles[vkey].data[n] ];
 		}
 
@@ -104,16 +109,12 @@ L.Grib2tile = L.Class.extend({
 	 *
 	 */
 	_getTileUrl: function (coords) {
-		return L.Util.template(this._url, {
-			x: coords.x,
-			y: coords.y,
-			z: coords.z	
-		});
+		return L.Util.template(this._url, coords);
 	},
 
 	_getTileZoom: function (mapZoom) {
 		// TODO
-		return 1;
+		return 2;
 	},
 
 	_getTileRange: function (mapBounds, tileZoom) {
@@ -164,7 +165,8 @@ L.Grib2tile = L.Class.extend({
 		this._tileZoom = tileZoom;
 		this._callback = callback;
 
-		if (queue.length !== 0){
+		console.time("load tiles");
+		if (this._queue.length !== 0){
 			this._getTiles(this._queue);
 
 		}else{
@@ -179,26 +181,27 @@ L.Grib2tile = L.Class.extend({
 		}else{
 			this._queue.push(coords);
 		}
-	};
+	},
 
 	_doneLoadingTiles: function () {
+		console.timeEnd("load tiles");
 		this._callback(this);
 	},
 
 	_getTiles: function (queue) {
 		for (var i = 0; i < queue.length; i++){
-			this._getTile(queue[i], L.bind(this._tileReady, this, coords));
+			this._getTile(queue[i], L.bind(this._tileReady, this, queue[i]));
 		}
 	},
 
 	_getTile: function (coords, done) {
 		var key = this._tileCoordsToKey(coords),
-			url = this._getTileUrl(coords),
-			_this = this;
+			url = this._getTileUrl(coords);
 
-		var gt = new Grib2tile(url, this.options.tileSize.x, this.options.tileSize.y);
+		var gt = new Grib2tile(url, this._tnx, this._tny);
+		this._tiles[key] = gt;
+		console.log("get tile:", key);
 		gt.get(function(){
-			_this.tiles[key] = gt;
 			done();
 		});
 	},
@@ -227,5 +230,4 @@ L.Grib2tile = L.Class.extend({
 		return coords.e + ':' + coords.x + ':' + coords.y + ':' + coords.z;
 	}
 });
-
 
