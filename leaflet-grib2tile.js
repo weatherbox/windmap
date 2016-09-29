@@ -139,8 +139,8 @@ L.Grib2tile = L.Class.extend({
 
 		this._dlat = dlat;
 		this._dlng = dlon;
-		this._fnx = (p2.tx - p1.tx) * this._tnx - p1.x + p2.x;
-		this._fny = (p2.ty - p1.ty) * this._tny - p1.y + p2.y;
+		this._fnx = (p2.tx - p1.tx) * (this._tnx - 1) - p1.x + p2.x + 1;
+		this._fny = (p2.ty - p1.ty) * (this._tny - 1) - p1.y + p2.y + 1;
 		var length = fnx * fny;
 
 		this._ufield = Float32Array(length);
@@ -156,8 +156,8 @@ L.Grib2tile = L.Class.extend({
 				var iy2 = (ity == p2.ty) ? p2.y : this._tny;
 				var ix1 = (itx == p1.tx) ? p1.x : 0;
 				var ix2 = (itx == p2.tx) ? p2.x : this._tnx;
-				var ifx = (itx == p1.tx) ? 0 : (itx - p1.tx) * this._tnx - p1.x;
-				var ify = (ity == p1.ty) ? 0 : (ity - p1.ty) * this._tny - p1.y;
+				var ifx = (itx == p1.tx) ? 0 : (itx - p1.tx) * (this._tnx - 1) - p1.x + 1;
+				var ify = (ity == p1.ty) ? 0 : (ity - p1.ty) * (this._tny - 1) - p1.y + 1;
 				var offset, offset_f, u,v;
 
 				for (var iy = iy1; iy < iy2; iy++){
