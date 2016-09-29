@@ -24,6 +24,7 @@ L.Grib2tile = L.Class.extend({
 		this._tileBoundsLon = options.bounds.getEast() - options.bounds.getWest();
 
 		this._origin = options.bounds.getNorthWest();
+		this._tileBounds = options.bounds;
 		this._tnx = options.tileSize.x;
 		this._tny = options.tileSize.y;
 
@@ -54,6 +55,10 @@ L.Grib2tile = L.Class.extend({
 	_getVector: function (latlng) {
 		var lat = latlng.lat,
 			lng = latlng.lng;
+
+		if (!this._tileBounds.contains(latlng)){
+			return [ null, null ];
+		}
 
 		var nz = Math.pow(2, this._tileZoom),
 			tlat = this._tileBoundsLat / nz,
