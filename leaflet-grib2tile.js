@@ -53,44 +53,28 @@ L.Grib2tile = L.Class.extend({
 	 *
 	 */
 	_getVector: function (latlng) {
-		var lat = latlng.lat,
-			lng = latlng.lng;
 
-		if (!this._tileBounds.contains(latlng)){
+		if (!this._fieldLatLngBounds.contains(latlng)){
 			return [ null, null ];
 		}
 
-		var nz = Math.pow(2, this._tileZoom),
-			tlat = this._tileBoundsLat / nz,
-			tlon = this._tileBoundsLon / nz,
-			dlat = tlat / this._tny,
-			dlon = tlon / this._tnx;
+		var lat = latlng.lat,
+			lng = latlng.lng;
 
-		// tile coords
-		var tx = Math.floor((lng - this._origin.lng) / tlon);
-		var ty = Math.floor((this._origin.lat - lat) / tlat);
-
-		// tile origin
-		var tox = this._origin.lng + tlon * tx;
-		var toy = this._origin.lat - tlat * ty;
-
-		// tile grid point
-		var x = Math.floor((lng - tox) / dlon);
-		var y = Math.floor((toy - lat) / dlat);
-
-		// tile grid relative position
-		var dx = (lng - (tox + dlon * x)) / dlon;
-		var dy = ((toy - dlat * y) - lat) / dlat;
-
-		// key to grib2tile data
-		var ukey = this._tileCoordsToKey({ x:tx, y:ty, z:this._tileZoom, e:"UGRD" });
-		var vkey = this._tileCoordsToKey({ x:tx, y:ty, z:this._tileZoom, e:"VGRD" });
+		var p0 = this._fieldLatLngBounds.getNorthWest(),
+			dlat = this._dlat,
+			dlng = this._dlng;
+		
+		var x = Math.floor((lng - p0.lng) / dlng);
+		var y = Math.floor((p0.lat - lat) / dlat);
+		var dx = (lng - (p0.lng + dlng * x)) / dlng;
+		var dy = ((p0.lat - dlat * y) - lat) / dlat;
 
 		// util to access grid wind data
 		var _this = this;
 		function v (x, y) {
-			var n = _this._tnx * y + x;
-			return [ _this._tiles[ukey].data[n], _this._tiles[vkey].data[n] ];
+			var n = _this._fnx * y + x;
+			return [ _this._ufield[n], _this._vfield[n] ];
 		}
 
 		return this._bilinearInterpolateVector(
@@ -108,6 +92,114 @@ L.Grib2tile = L.Class.extend({
 		return [ u, v ];
 	},
 
+
+	_createField: function () {
+		console.time("create field");
+		var nz = Math.pow(2, this._tileZoom),
+			tlat = this._tileBoundsLat / nz,
+			tlon = this._tileBoundsLon / nz,
+			dlat = tlat / this._tny,
+			dlon = tlon / this._tnx,
+			origin = this._origin;
+				
+		function getFieldPoint (latlng) {
+			// tile coords
+			var tx = Math.floor((latlng.lng - origin.lng) / tlon);
+			var ty = Math.floor((origin.lat - latlng.lat) / tlat);
+
+			// tile origin
+			var tox = origin.lng + tlon * tx;
+			var toy = origin.lat - tlat * ty;
+
+			// tile grid point
+			var x = Math.floor((latlng.lng - tox) / dlon);
+			var y = Math.floor((toy - latlng.lat) / dlat);
+
+			var p = new L.Point(x, y);
+			p.tx = tx;
+			p.ty = ty;
+
+			return p;
+		}
+
+		function fieldPointToLatLng (p) {
+			return new L.latLng([
+				origin.lat - tlat * p.ty - dlat * p.y,
+				origin.lng + tlon * p.tx + dlon * p.x
+			]);
+		}
+
+		var p1 = this._checkBounds(getFieldPoint(this._bounds.getNorthWest()));
+		var p2 = this._checkBounds(getFieldPoint(this._bounds.getSouthEast()));
+
+		this._fieldLatLngBounds = new L.latLngBounds(
+			fieldPointToLatLng(p1),
+			fieldPointToLatLng(p2)
+		);
+
+		this._dlat = dlat;
+		this._dlng = dlon;
+		this._fnx = (p2.tx - p1.tx) * this._tnx - p1.x + p2.x;
+		this._fny = (p2.ty - p1.ty) * this._tny - p1.y + p2.y;
+		var length = fnx * fny;
+
+		this._ufield = Float32Array(length);
+		this._vfield = Float32Array(length);
+
+		// insert to field from tile
+		for (var ity = p1.ty; ity <= p2.ty; ity++){
+			for (var itx = p1.tx; itx <= p2.x; itx++){
+				var ukey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"UGRD" });
+				var vkey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"VGRD" });
+		
+				var iy1 = (ity == p1.ty) ? p1.y : 0;
+				var iy2 = (ity == p2.ty) ? p2.y : this._tny;
+				var ix1 = (itx == p1.tx) ? p1.x : 0;
+				var ix2 = (itx == p2.tx) ? p2.x : this._tnx;
+				var ifx = (itx == p1.tx) ? 0 : (itx - p1.tx) * this._tnx - p1.x;
+				var ify = (ity == p1.ty) ? 0 : (ity - p1.ty) * this._tny - p1.y;
+				var offset, offset_f, u,v;
+
+				for (var iy = iy1; iy < iy2; iy++){
+					offset = this._tnx * iy + ix1;
+					u = this._tiles[ukey].data.subarray(offset, offset + ix2);
+					v = this._tiles[vkey].data.subarray(offset, offset + ix2);
+
+					offset_f = ifx + this._fnx * (ify + iy);
+					this._ufield.set(u, offset_f);
+					this._vfield.set(v, offset_f);
+				}
+			}
+		}
+
+		// done
+		console.timeEnd("create field");
+		this._callback(this);
+	},
+		
+	function _checkBounds(p){
+		var nz = Math.pow(2, this._tileZoom),
+
+		if (p.tx < 0){
+			p.tx = 0;
+			p.x = 0;
+
+		}else if (p.tx >= nz){
+			p.tx = nz - 1;
+			p.x = this._tnx;
+		}
+		
+		if (p.ty < 0){
+			p.ty = 0;
+			p.y = 0;
+
+		}else if (p.ty >= nz){
+			p.ty = nz - 1;
+			p.y = this._tny;
+		}
+
+		return p;
+	},
 
 	/*
 	 * @private wrapper to grib2tiles
@@ -167,6 +259,7 @@ L.Grib2tile = L.Class.extend({
 			}
 		}
 
+		this._bounds = mapBouns;
 		this._tileZoom = tileZoom;
 		this._callback = callback;
 
@@ -190,7 +283,7 @@ L.Grib2tile = L.Class.extend({
 
 	_doneLoadingTiles: function () {
 		console.timeEnd("load tiles");
-		this._callback(this);
+		this._createField();
 	},
 
 	_getTiles: function (queue) {
