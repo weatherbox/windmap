@@ -102,7 +102,7 @@ L.Grib2tile = L.Class.extend({
 			dlon = tlon / this._tnx,
 			origin = this._origin;
 				
-		function getFieldPoint (latlng) {
+		function getFieldPoint (latlng, plus) {
 			// tile coords
 			var tx = Math.floor((latlng.lng - origin.lng) / tlon);
 			var ty = Math.floor((origin.lat - latlng.lat) / tlat);
@@ -114,6 +114,22 @@ L.Grib2tile = L.Class.extend({
 			// tile grid point
 			var x = Math.floor((latlng.lng - tox) / dlon);
 			var y = Math.floor((toy - latlng.lat) / dlat);
+
+			if (plus){
+				if (x + 1 < this._tnx){
+					x += 1;
+				}else{
+					tx += 1;
+					x = 1;
+				}
+
+				if (y + 1 < this._tny){
+					y += 1;
+				}else{
+					ty += 1;
+					y = 1;
+				}
+			}
 
 			var p = new L.Point(x, y);
 			p.tx = tx;
@@ -130,7 +146,7 @@ L.Grib2tile = L.Class.extend({
 		}
 
 		var p1 = this._checkBounds(getFieldPoint(this._bounds.getNorthWest()));
-		var p2 = this._checkBounds(getFieldPoint(this._bounds.getSouthEast()));
+		var p2 = this._checkBounds(getFieldPoint(this._bounds.getSouthEast(), true));
 
 		this._fieldLatLngBounds = new L.latLngBounds(
 			fieldPointToLatLng(p1),
