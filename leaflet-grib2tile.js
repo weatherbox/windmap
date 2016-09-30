@@ -151,7 +151,7 @@ L.Grib2tile = L.Class.extend({
 			for (var itx = p1.tx; itx <= p2.tx; itx++){
 				var ukey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"UGRD" });
 				var vkey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"VGRD" });
-		
+
 				var iy1 = (ity == p1.ty) ? p1.y : 0;
 				var iy2 = (ity == p2.ty) ? p2.y : this._tny - 1;
 				var ix1 = (itx == p1.tx) ? p1.x : 0;
@@ -186,7 +186,7 @@ L.Grib2tile = L.Class.extend({
 
 		}else if (p.tx >= nz){
 			p.tx = nz - 1;
-			p.x = this._tnx;
+			p.x = this._tnx - 1;
 		}
 		
 		if (p.ty < 0){
@@ -195,7 +195,7 @@ L.Grib2tile = L.Class.extend({
 
 		}else if (p.ty >= nz){
 			p.ty = nz - 1;
-			p.y = this._tny;
+			p.y = this._tny - 1;
 		}
 
 		return p;
