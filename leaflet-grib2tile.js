@@ -1,5 +1,6 @@
 /*
  * @class L.Grib2tile
+ * @inherits L.GridLayer
  * @author Yuta Tachibana
  *
  * requirements:
@@ -8,7 +9,7 @@
  *
  */
 
-L.Grib2tile = L.Class.extend({
+L.Grib2tile = L.GridLayer.extend({
 	options: {
 		bounds: new L.latLngBounds([22.4, 120.0], [47.6, 150.0]),
 		tileZoom: [1, 2],
@@ -329,6 +330,7 @@ L.Grib2tile = L.Class.extend({
 			url = this._getTileUrl(coords);
 
 		var gt = new Grib2tile(url, this._tnx, this._tny);
+		gt.coords = coords;
 		this._tiles[key] = gt;
 		console.log("get tile:", key);
 		gt.get(function(){
@@ -345,7 +347,7 @@ L.Grib2tile = L.Class.extend({
 
 		if (this._noTilesToLoad()){
 			this._doneLoadingTiles();
-			//TODO setTimeout(L.bind(this._pruneTiles, this), 250);
+			setTimeout(L.bind(this._pruneTiles, this), 250);
 		}
 	},
 
