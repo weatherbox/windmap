@@ -227,9 +227,23 @@ L.Grib2tile = L.Class.extend({
 		return L.Util.template(this._url, coords);
 	},
 
-	_getTileZoom: function (mapZoom) {
-		// TODO
-		return 1;
+	// use less than 4 tiles
+	_getTileZoom: function (mapZoom, mapBounds) {
+		var mapBoundsLat = mapBounds.getNorth() - mapBounds.getSouth(),
+			mapBoundsLon = mapBounds.getEast() - mapBounds.getWest();
+
+		for (var i = this.options.tileZoom.length - 1; i >= 0; i--) {
+			var z = this.options.tileZoom[i];
+			var nz = Math.pow(2, z);
+
+			var u = mapBoundsLon / (this._tileBoundsLon / nz),
+				v = mapBoundsLat / (this._tileBoundsLat / nz);
+
+			if (u * v <= 4) {
+				return z;
+			}
+		}
+		return z;
 	},
 
 	_getTileRange: function (mapBounds, tileZoom) {
@@ -256,7 +270,7 @@ L.Grib2tile = L.Class.extend({
 	_getField: function (element, mapBounds, mapZoom, callback) {
 		if (!mapBounds || !mapZoom) return;
 
-		var tileZoom = this._getTileZoom(mapZoom),
+		var tileZoom = this._getTileZoom(mapZoom, mapBounds),
 			tileRange = this._getTileRange(mapBounds, tileZoom);
 		this._queue = [];
 
