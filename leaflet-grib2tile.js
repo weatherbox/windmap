@@ -40,10 +40,6 @@ L.Grib2tile = L.GridLayer.extend({
 		this._getField(element, bounds, zoom, callback);
 	},
 
-	getVector: function (latlon){
-		return this._getVector(latlon);
-	},
-
 	getValue: function (latlon){
 
 	},
@@ -53,7 +49,7 @@ L.Grib2tile = L.GridLayer.extend({
 	 * @private get grib values
 	 *
 	 */
-	_getVector: function (latlng) {
+	getVector: function (latlng) {
 
 		if (!this._fieldLatLngBounds.contains(latlng)){
 			return [ null, null ];
@@ -62,7 +58,7 @@ L.Grib2tile = L.GridLayer.extend({
 		var lat = latlng.lat,
 			lng = latlng.lng;
 
-		var p0 = this._fieldLatLngBounds.getNorthWest(),
+		var p0 = this._p0,
 			dlat = this._dlat,
 			dlng = this._dlng;
 		
@@ -155,6 +151,7 @@ L.Grib2tile = L.GridLayer.extend({
 			fieldPointToLatLng(p1),
 			fieldPointToLatLng(p2)
 		);
+		this._p0 = fieldPointToLatLng(p1);
 
 		this._dlat = dlat;
 		this._dlng = dlon;
