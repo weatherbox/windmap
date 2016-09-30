@@ -100,6 +100,8 @@ L.Grib2tile = L.Class.extend({
 			tlon = this._tileBoundsLon / nz,
 			dlat = tlat / this._tny,
 			dlon = tlon / this._tnx,
+			tnx = this._tnx,
+			tny = this._tny,
 			origin = this._origin;
 				
 		function getFieldPoint (latlng, plus) {
@@ -116,14 +118,14 @@ L.Grib2tile = L.Class.extend({
 			var y = Math.floor((toy - latlng.lat) / dlat);
 
 			if (plus){
-				if (x + 1 < this._tnx){
+				if (x + 1 < tnx){
 					x += 1;
 				}else{
 					tx += 1;
 					x = 1;
 				}
 
-				if (y + 1 < this._tny){
+				if (y + 1 < tny){
 					y += 1;
 				}else{
 					ty += 1;
