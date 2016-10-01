@@ -44,6 +44,9 @@ L.Grib2tile = L.GridLayer.extend({
 
 	},
 
+	abort: function () {
+		if (this._loadingTile) this._abortLoading();
+	},
 
 	/*
 	 * @private get grib values
