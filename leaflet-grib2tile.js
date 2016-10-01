@@ -266,6 +266,7 @@ L.Grib2tile = L.GridLayer.extend({
 
 
 	_getField: function (element, mapBounds, mapZoom, callback) {
+		if (this._loadingTiles) this._abortLoading();
 		if (!mapBounds || !mapZoom) return;
 
 		var tileZoom = this._getTileZoom(mapZoom, mapBounds),
@@ -317,6 +318,7 @@ L.Grib2tile = L.GridLayer.extend({
 	},
 
 	_getTiles: function (queue) {
+		this._loadingTiles = true;
 		for (var i = 0; i < queue.length; i++){
 			this._getTile(queue[i], L.bind(this._tileReady, this, queue[i]));
 		}
@@ -329,6 +331,7 @@ L.Grib2tile = L.GridLayer.extend({
 		var gt = new Grib2tile(url, this._tnx, this._tny);
 		gt.coords = coords;
 		this._tiles[key] = gt;
+
 		console.log("get tile:", key);
 		gt.get(function(){
 			done();
@@ -343,6 +346,7 @@ L.Grib2tile = L.GridLayer.extend({
 		tile.loaded = +new Date();
 
 		if (this._noTilesToLoad()){
+			this._loadingTiles = false;
 			this._doneLoadingTiles();
 			setTimeout(L.bind(this._pruneTiles, this), 250);
 		}
@@ -357,6 +361,14 @@ L.Grib2tile = L.GridLayer.extend({
 
 	_tileCoordsToKey: function (coords) {
 		return coords.e + ':' + coords.x + ':' + coords.y + ':' + coords.z;
+	},
+
+	_abortLoading: function () {
+		for (var key in this._tiles) {
+			if (!this._tiles[key].loaded) {
+			   this._tiles[key]._req.abort();
+			}
+		}
 	}
 });
 
