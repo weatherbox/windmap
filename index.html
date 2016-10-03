@@ -29,6 +29,7 @@
 		<script src="streamline.js/leaflet-streamline.js"></script>
 		<script src="grib2tiles/grib2tile.js"></script>
 		<script src="leaflet-grib2tile.js"></script>
+		<script src="leaflet-windmap.js"></script>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 		<script src="js/sonic.js"></script>
 		<script>
@@ -44,17 +45,12 @@
 						zoom: 9,
 						minZoom: 5,
 						maxZoom: 13,
-						attributionControl: false
+						attributionControl: false,
+						zoomControl: false
 					})
 					.addLayer(mapboxTiles);
 
-				loading();
-
-				var host = "http://msm-tiles.s3-website-ap-northeast-1.amazonaws.com/";
-				var grib2tile = new L.Grib2tile(host + "tiles/201609221200/201609232200/surface/{e}/{z}/{x}_{y}.bin");
-
-				var streamline = new L.Streamline(grib2tile);
-				streamline.addTo(map);
+				var windmap = new L.Windmap(map);
 
 
 				var circleIcon = L.divIcon({
@@ -84,16 +80,6 @@
 					if (marker) map.removeLayer(marker);
 					marker = null;
 					$("#wind-dialog").text("");
-				}
-
-
-				/**
-				 * loading animation by sonic.js
-				 */
-				function loading() {
-					var sonic = new Sonic(SonicLoader);
-					$("#loading").append(sonic.canvas);
-					sonic.play();
 				}
 
 
