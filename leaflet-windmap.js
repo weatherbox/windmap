@@ -34,10 +34,12 @@ L.Windmap = L.Class.extend({
 	_initStreamline: function (url){
 		this._grib2tile = new L.Grib2tile(url);
 
-		this._streamline = new L.Streamline(this._grib2tile);
-		this._streamline.onUpdate = function () { this._showLoading };
-		this._streamline.onUpdated = function () { this._hideLoading };
+		this._streamline = new L.Streamline(this._grib2tile, {
+			onUpdate: function (){ $("#loading").show(); },
+			onUpdated: function (){ $("#loading").hide(); }
+		});
 		this._streamline.addTo(this._map);
+		console.log(this._streamline);
 	},
 
 	_getTileJson: function (callback) {
@@ -53,13 +55,6 @@ L.Windmap = L.Class.extend({
 		this._loading.append(sonic.canvas);
 		sonic.play();
 	},
-	showLoading: function () {
-		this._loading.show();
-	},
-	hideLoading: function () {
-		this._loading.hide();
-	},
-	
 	
 });
 
