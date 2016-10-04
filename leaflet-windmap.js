@@ -24,6 +24,8 @@ L.Windmap = L.Class.extend({
 		var self = this;
 		this._getTileJson(function (data) {
 			self._tileData = data;
+			self._setDate(self._tileData.ref_time);
+
 			var valid_time = self._tileData.surface.valid_time[0];
 			var url = self._tileData.url.replace("{valid_time}", valid_time);
 			url = url.replace("{level}", "surface");
@@ -42,7 +44,11 @@ L.Windmap = L.Class.extend({
 			onUpdated: function (){ $("#loading").hide(); }
 		});
 		this._streamline.addTo(this._map);
-		console.log(this._streamline);
+	},
+
+	_setDate: function (t) {
+		var date = new Date(Date.UTC(t.substr(0, 4), t.substr(4, 2), t.substr(6, 2), t.substr(8, 2)));
+		$("h1").text(date.toString() + " / Surface / MSM");
 	},
 
 	_getTileJson: function (callback) {
