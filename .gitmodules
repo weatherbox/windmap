@@ -1,6 +1,6 @@
 [submodule "streamline.js"]
 	path = streamline.js
-	url = git@github.com:tattii/streamline.js.git
+	url = https://github.com/tattii/streamline.js.git
 [submodule "grib2tiles"]
 	path = grib2tiles
-	url = git@github.com:weatherbox/grib2tiles.git
+	url = https://github.com/weatherbox/grib2tiles
