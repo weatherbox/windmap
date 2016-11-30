@@ -9,24 +9,36 @@ const style = {
 	color: '#fff'
 }
 
-const LevelDropdown = () => (
-  <Dropdown text='Surface' pointing='bottom left' icon={null} style={style}>
-    <Dropdown.Menu>
-      <Dropdown.Item text='9000m' value='300' description='300hPa' />
-      <Dropdown.Item text='5500m' value='500' description='500hPa' />
-      <Dropdown.Item text='3000m' value='700' description='700hPa' />
-      <Dropdown.Item text='1500m' value='850' description='850hPa' />
-      <Dropdown.Item text='900m' value='900' description='900hPa' />
-      <Dropdown.Item text='750m' value='925' description='925hPa' />
-      <Dropdown.Item text='600m' value='950' description='950hPa' />
-      <Dropdown.Item text='300m' value='975' description='975hPa' />
-      <Dropdown.Item text='100m' value='1000' description='1000hPa' />
-      <Dropdown.Item text='Surface' value='surface' />
-    </Dropdown.Menu>
-  </Dropdown>
-)
+const options = [
+	{ value: '300', text: '9000m', description: '300hPa' },
+	{ value: '500', text: '5500m', description: '500hPa' },
+	{ value: '700', text: '3000m', description: '700hPa' },
+	{ value: '850', text: '1500m', description: '850hPa' },
+	{ value: '900', text: '900m', description: '900hPa' },
+	{ value: '925', text: '750m', description: '925hPa' },
+	{ value: '950', text: '600m', description: '950hPa' },
+	{ value: '975', text: '300m', description: '975hPa' },
+	{ value: '1000', text: '100m', description: '1000hPa' },
+	{ value: 'surface', text: 'Surface' },
+]
 
-export default LevelDropdown
+export default class LevelDropdown extends React.Component {
+	handleChange = (e, {value}) => {
+		console.log(value)
+	}
 
-
+	render() {
+		return (
+			<Dropdown
+				className='level-dropdown'
+				options={options}
+				defaultValue='surface'
+				onChange={this.handleChange}
+				pointing='bottom left'
+				icon={null}
+				style={style} 
+			/>
+		)
+	}
+}
 
