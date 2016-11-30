@@ -6,7 +6,8 @@ const style = {
 	bottom: 10,
 	left: 10,
 	zIndex: 20,
-	color: '#fff'
+	color: '#fff',
+	fontSize: 16
 }
 
 const options = [
