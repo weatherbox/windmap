@@ -1,11 +1,11 @@
 module.exports = {
   context: __dirname + '/',
   entry: {
-    'windmap-ui': './windmap-ui'
+    'bundle': './windmap-ui'
   },
   output: {
-    path: __dirname + '/dist',
-    filename: '[name].js'
+    path: __dirname,
+    filename: 'bundle.js'
   },
   module: {
     loaders: [
@@ -14,7 +14,7 @@ module.exports = {
         exclude: /node_modules/, 
         loader: "babel", 
         query:{
-          presets: ['es2015']
+          presets: ['es2015', 'react']
         }
       }
     ]
