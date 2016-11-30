@@ -59,10 +59,7 @@ L.Windmap = L.Class.extend({
 
 	// loading animation by sonic.js
 	createLoading: function () {
-		var sonic = new Sonic(SonicLoader);
 		var loading = $("#loading");
-		loading.append(sonic.canvas);
-		sonic.play();
 	},
 
 	showPointWind: function (e) {
