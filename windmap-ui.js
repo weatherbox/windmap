@@ -3,6 +3,7 @@ import { render } from 'react-dom'
 
 import LevelDropdown from './src/LevelDropdown'
 import ElementDropdown from './src/ElementDropdown'
+import TimeSlider from './src/TimeSlider'
 
 class WindmapUI extends React.Component {
 	render() {
@@ -10,6 +11,7 @@ class WindmapUI extends React.Component {
 			<div>
 				<LevelDropdown />
 				<ElementDropdown />
+				<TimeSlider />
 			</div>
 		)
 	}
