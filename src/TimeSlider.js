@@ -15,7 +15,8 @@ const styles = {
 		left: 0,
 		width: '100%',
 		height: 50,
-		zIndex: 21,
+		zIndex: 221,
+		transform: 'translate3d(0, 0, 0px)',
 		color: '#fff',
 		background: '#ccc',
 		overflowX: 'scroll'
@@ -35,7 +36,8 @@ const styles = {
 		left: '50%',
 		border: '1px solid #00f',
 		marginLeft: -1,
-		zIndex: 22
+		transform: 'translate3d(0, 0, 1px)',
+		zIndex: 222
 	},
 	popup: {
 		top: 'auto',
@@ -57,7 +59,7 @@ export default class TimeSlider extends React.Component {
 	show = () => {
 		this.setState({ visible: true })
 
-		setTimeout(this.hide, 3000)
+		setTimeout(this.hide, 5000)
 		window.map.on('preclick', this.hide)
 	}
 
