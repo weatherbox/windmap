@@ -1,5 +1,5 @@
 import React from 'react'
-
+import { Sidebar } from 'semantic-ui-react'
 
 const styles = {
 	button: {
@@ -11,7 +11,6 @@ const styles = {
 		fontSize: 16
 	},
 	bottomBar: {
-		position: 'absolute',
 		bottom: 0,
 		left: 0,
 		width: '100%',
@@ -42,29 +41,45 @@ const styles = {
 		top: 'auto',
 		bottom: 50,
 		right: '50%',
-		marginRight: -53
-	}
+		marginRight: -53,
+	},
 }
 
 
 export default class TimeSlider extends React.Component {
+	state = { visible: false }
+	
+	hide = () => {
+		this.setState({ visible: false })
+		window.map.off('preclick')
+	}
+
+	show = () => {
+		this.setState({ visible: true })
+
+		setTimeout(this.hide, 3000)
+		window.map.on('preclick', this.hide)
+	}
 
 	render() {
 		return (
 			<div>
-				<div style={styles.button} onClick={this.showSlider}>
+				<div style={styles.button} onClick={this.show}>
 					12/01 09:00
 				</div>
 
-				<div style={styles.bottomBar}>
-					<div style={styles.timeSlider}>test</div>
-				</div>
+				<Sidebar as='div' animation='overlay' direction='bottom' visible={this.state.visible}>
+					<div style={styles.bottomBar}>
+						<div style={styles.timeSlider}>test</div>
+					</div>
 
-				<div style={styles.centerLine}></div>
+					<div style={styles.centerLine}></div>
+				</Sidebar>
 
-				<div className='ui popup transition visible top center' style={styles.popup}>
+				<div className={'ui popup transition top center ' + ((this.state.visible) ? "visible" : "")} style={styles.popup}>
 					12/01 09:00
 				</div>
+				
 			</div>
 		)
 	}
