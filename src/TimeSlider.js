@@ -50,6 +50,11 @@ const styles = {
 }
 
 const timeToHideBottomBar = 10000
+const time = {
+	start: "201612010000",
+	end: "201612021500",
+	interval: "3h"
+}
 
 export default class TimeSlider extends React.Component {
 	state = { visible: false }
@@ -84,47 +89,7 @@ export default class TimeSlider extends React.Component {
 					<div style={styles.bottomBar}
 						onScroll={this.scroll}
 						ref='slider'>
-						<div style={styles.timeSlider}>
-							<div className="time-slider-day">
-								12/01<br/>
-								<span className="hours">
-									<span>00</span>
-									<span>03</span>
-									<span>06</span>
-									<span>09</span>
-									<span>12</span>
-									<span>15</span>
-									<span>18</span>
-									<span>21</span>
-								</span>
-							</div>
-							<div className="time-slider-day">
-								12/02<br/>
-								<span className="hours">
-									<span>00</span>
-									<span>03</span>
-									<span>06</span>
-									<span>09</span>
-									<span>12</span>
-									<span>15</span>
-									<span>18</span>
-									<span>21</span>
-								</span>
-							</div>
-							<div className="time-slider-day">
-								12/03<br/>
-								<span className="hours">
-									<span>00</span>
-									<span>03</span>
-									<span>06</span>
-									<span>09</span>
-									<span>12</span>
-									<span>15</span>
-									<span>18</span>
-									<span>21</span>
-								</span>
-							</div>
-						</div>
+						<TimeSliderHours start={time.start} end={time.end} />
 					</div>
 
 					<div style={styles.centerLine}></div>
@@ -138,4 +103,87 @@ export default class TimeSlider extends React.Component {
 		)
 	}
 }
+
+class TimeSliderHours extends React.Component {
+
+	constructor(props) {
+		super(props)
+		let { start, end } = props
+
+		let startUTC = this.dateStringToDateUTC(start)
+		let endUTC = this.dateStringToDateUTC(end)
+
+		this.times = []
+		let timesDay = null
+		for (var d = startUTC; d < endUTC; d += 3 * 3600 * 1000){
+			var date = new Date(d);
+			var day = (date.getMonth() + 1) + '/' + ('0' + date.getDate()).slice(-2)
+			var hh = ('0' + date.getHours()).slice(-2)
+			
+			if (timesDay != day){
+				timesDay = day
+				this.times.push({
+					day: day,
+					hours: [hh]
+				})
+			}else{
+				this.times[this.times.length - 1].hours.push(hh)
+			}
+		}
+
+		console.log(this.times)
+	}
+
+	dateStringToDateUTC = (dateString) => {
+		return Date.UTC(
+			dateString.substr(0, 4),
+			dateString.substr(4, 2) - 1,
+			dateString.substr(6, 2),
+			dateString.substr(8, 2),
+			dateString.substr(10, 2)
+		)
+	}
+
+	render() {
+		return (
+			<div style={styles.timeSlider}>
+				<div className="time-slider-day" style={{ width:49, marginLeft:-24 }}>
+					12/01<br/>
+					<span className="hours">
+						<span></span>
+						<span>21</span>
+					</span>
+				</div>
+				<div className="time-slider-day">
+					12/02<br/>
+					<span className="hours">
+						<span>00</span>
+						<span>03</span>
+						<span>06</span>
+						<span>09</span>
+						<span>12</span>
+						<span>15</span>
+						<span>18</span>
+						<span>21</span>
+					</span>
+				</div>
+				<div className="time-slider-day">
+					12/03<br/>
+					<span className="hours">
+						<span>00</span>
+						<span>03</span>
+						<span>06</span>
+						<span>09</span>
+						<span>12</span>
+						<span>15</span>
+						<span>18</span>
+						<span>21</span>
+					</span>
+				</div>
+			</div>
+		)
+	}
+}
+
+
 
