@@ -1,3 +1,22 @@
 .level-dropdown .description {
 	font-size: 10px;
 }
+
+.time-slider-day {
+	width: 193px;
+	height: 50px;
+	display: inline-block;
+	color: #565656;
+	text-align: center;
+	font-size: 14px;
+	line-height: 25px;
+	border-right: 1px solid #ccc;
+	background: #fff;
+}
+
+.time-slider-day .hours span {
+	width: 24px;
+	display: inline-block;
+	font-size: 12px;
+	text-align: center;
+}

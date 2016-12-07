@@ -19,14 +19,15 @@ const styles = {
 		zIndex: 221,
 		transform: 'translate3d(0, 0, 0px)',
 		color: '#fff',
-		background: '#ccc',
-		overflowX: 'scroll'
+		background: '#eee',
+		overflowX: 'scroll',
+		overflowY: 'hidden',
+		WebkitOverflowScrolling: 'touch',
 	},
 	timeSlider: {
 		width: 1000,
 		marginLeft: '50%',
 		marginRight: '50%',
-		background: '#fff',
 		height: 50,
 	},
 	centerLine: {
@@ -35,7 +36,7 @@ const styles = {
 		height: 50,
 		bottom: 0,
 		left: '50%',
-		border: '1px solid #00f',
+		border: '1px solid #0095d9',
 		marginLeft: -1,
 		transform: 'translate3d(0, 0, 1px)',
 		zIndex: 222
@@ -48,7 +49,7 @@ const styles = {
 	},
 }
 
-const timeToHideBottomBar = 3000
+const timeToHideBottomBar = 10000
 
 export default class TimeSlider extends React.Component {
 	state = { visible: false }
@@ -84,7 +85,45 @@ export default class TimeSlider extends React.Component {
 						onScroll={this.scroll}
 						ref='slider'>
 						<div style={styles.timeSlider}>
-							test
+							<div className="time-slider-day">
+								12/01<br/>
+								<span className="hours">
+									<span>00</span>
+									<span>03</span>
+									<span>06</span>
+									<span>09</span>
+									<span>12</span>
+									<span>15</span>
+									<span>18</span>
+									<span>21</span>
+								</span>
+							</div>
+							<div className="time-slider-day">
+								12/02<br/>
+								<span className="hours">
+									<span>00</span>
+									<span>03</span>
+									<span>06</span>
+									<span>09</span>
+									<span>12</span>
+									<span>15</span>
+									<span>18</span>
+									<span>21</span>
+								</span>
+							</div>
+							<div className="time-slider-day">
+								12/03<br/>
+								<span className="hours">
+									<span>00</span>
+									<span>03</span>
+									<span>06</span>
+									<span>09</span>
+									<span>12</span>
+									<span>15</span>
+									<span>18</span>
+									<span>21</span>
+								</span>
+							</div>
 						</div>
 					</div>
 
