@@ -25,9 +25,7 @@ const styles = {
 		WebkitOverflowScrolling: 'touch',
 	},
 	timeSlider: {
-		width: 1000,
 		marginLeft: '50%',
-		marginRight: '50%',
 		height: 50,
 	},
 	centerLine: {
@@ -51,8 +49,8 @@ const styles = {
 
 const timeToHideBottomBar = 10000
 const time = {
-	start: "201612010000",
-	end: "201612021500",
+	start: "201611301200",
+	end: "201612011800",
 	interval: "3h"
 }
 
@@ -114,11 +112,13 @@ class TimeSliderHours extends React.Component {
 		let endUTC = this.dateStringToDateUTC(end)
 
 		this.times = []
+		this.hours = 0
 		let timesDay = null
 		for (var d = startUTC; d < endUTC; d += 3 * 3600 * 1000){
 			var date = new Date(d);
 			var day = (date.getMonth() + 1) + '/' + ('0' + date.getDate()).slice(-2)
 			var hh = ('0' + date.getHours()).slice(-2)
+			this.hours++
 			
 			if (timesDay != day){
 				timesDay = day
@@ -145,41 +145,54 @@ class TimeSliderHours extends React.Component {
 	}
 
 	render() {
+		let halfWidth = window.innerWidth / 2
+		styles.timeSlider.width = 24 * this.hours + this.times.length + halfWidth
 		return (
 			<div style={styles.timeSlider}>
-				<div className="time-slider-day" style={{ width:49, marginLeft:-24 }}>
-					12/01<br/>
-					<span className="hours">
-						<span></span>
-						<span>21</span>
-					</span>
-				</div>
-				<div className="time-slider-day">
-					12/02<br/>
-					<span className="hours">
-						<span>00</span>
-						<span>03</span>
-						<span>06</span>
-						<span>09</span>
-						<span>12</span>
-						<span>15</span>
-						<span>18</span>
-						<span>21</span>
-					</span>
-				</div>
-				<div className="time-slider-day">
-					12/03<br/>
-					<span className="hours">
-						<span>00</span>
-						<span>03</span>
-						<span>06</span>
-						<span>09</span>
-						<span>12</span>
-						<span>15</span>
-						<span>18</span>
-						<span>21</span>
-					</span>
-				</div>
+				{this.times.map((day) => {
+					console.log(day);
+					if (day.hours.length > 1){
+						return (
+							<div className="time-slider-day"
+								key={day.day}
+								style={{ width: 24 * day.hours.length + 1 }}>
+								{day.day} <br/>
+								<span className="hours">
+									{day.hours.map((hour) => {
+										return <span key={hour}>{hour}</span>
+									})}
+								</span>
+							</div>
+						)
+
+					}else if (day.hours[0] == '21'){
+						return (
+							<div className="time-slider-day"
+								key={day.day}
+								style={{ width:49, marginLeft:-24 }}>
+								{day.day} <br/>
+								<span className="hours">
+									<span></span>
+									<span>21</span>
+								</span>
+							</div>
+						)
+
+					}else if (day.hours[0] == '00'){
+						return (
+							<div className="time-slider-day"
+								key={day.day}
+								style={{ width:49, marginRight:-24 }}>
+								{day.day} <br/>
+								<span className="hours">
+									<span>00</span>
+									<span></span>
+								</span>
+							</div>
+						)
+					}
+				})}
+				<div style={{ width:halfWidth, display:'inline-block' }}></div>
 			</div>
 		)
 	}
