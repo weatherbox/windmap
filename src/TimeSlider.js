@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import { Sidebar } from 'semantic-ui-react'
 
 const styles = {
@@ -47,6 +48,7 @@ const styles = {
 	},
 }
 
+const timeToHideBottomBar = 3000
 
 export default class TimeSlider extends React.Component {
 	state = { visible: false }
@@ -59,8 +61,15 @@ export default class TimeSlider extends React.Component {
 	show = () => {
 		this.setState({ visible: true })
 
-		setTimeout(this.hide, 5000)
+		this._timer = setTimeout(this.hide, timeToHideBottomBar)
 		window.map.on('preclick', this.hide)
+	}
+
+	scroll = (e) => {
+		console.log(ReactDOM.findDOMNode(this.refs.slider).scrollLeft)
+
+		if (this._timer) clearTimeout(this._timer)
+		this._timer = setTimeout(this.hide, timeToHideBottomBar)
 	}
 
 	render() {
@@ -71,8 +80,12 @@ export default class TimeSlider extends React.Component {
 				</div>
 
 				<Sidebar as='div' animation='overlay' direction='bottom' visible={this.state.visible}>
-					<div style={styles.bottomBar}>
-						<div style={styles.timeSlider}>test</div>
+					<div style={styles.bottomBar}
+						onScroll={this.scroll}
+						ref='slider'>
+						<div style={styles.timeSlider}>
+							test
+						</div>
 					</div>
 
 					<div style={styles.centerLine}></div>
