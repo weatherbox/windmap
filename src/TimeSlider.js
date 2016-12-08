@@ -50,12 +50,23 @@ const styles = {
 const timeToHideBottomBar = 10000
 const time = {
 	start: "201611301200",
-	end: "201612011800",
+	end: "201612020300",
 	interval: "3h"
 }
 
 export default class TimeSlider extends React.Component {
-	state = { visible: false }
+	state = {
+		time: '01/01 00:00',
+		visible: false
+	}
+	
+	constructor(props) {
+		super(props)
+		this.startUTC = this.dateStringToDateUTC(time.start)
+		this.endUTC = this.dateStringToDateUTC(time.end)
+
+		this.state.time = this.dateToStr(this.startUTC)
+	}
 	
 	hide = () => {
 		this.setState({ visible: false })
@@ -68,33 +79,52 @@ export default class TimeSlider extends React.Component {
 		this._timer = setTimeout(this.hide, timeToHideBottomBar)
 		window.map.on('preclick', this.hide)
 	}
+	
+	dateStringToDateUTC = (dateString) => {
+		return Date.UTC(
+			dateString.substr(0, 4),
+			dateString.substr(4, 2) - 1,
+			dateString.substr(6, 2),
+			dateString.substr(8, 2),
+			dateString.substr(10, 2)
+		)
+	}
 
-	scroll = (e) => {
-		console.log(ReactDOM.findDOMNode(this.refs.slider).scrollLeft)
+	dateToStr = (d) => {
+		let date = new Date(d)
+		let day = (date.getMonth() + 1) + '/' + ('0' + date.getDate()).slice(-2)
+		let hh = ('0' + date.getHours()).slice(-2)
+		return day + ' ' + hh + ':00'
+	}
 
+	scroll = () => {
 		if (this._timer) clearTimeout(this._timer)
 		this._timer = setTimeout(this.hide, timeToHideBottomBar)
+	}
+	
+	change = (date) => {
+		this.setState({ time: this.dateToStr(date) })
 	}
 
 	render() {
 		return (
 			<div>
 				<div style={styles.button} onClick={this.show}>
-					12/01 09:00
+					{this.state.time}
 				</div>
 
 				<Sidebar as='div' animation='overlay' direction='bottom' visible={this.state.visible}>
-					<div style={styles.bottomBar}
+					<TimeSliderHours
+						start={this.startUTC}
+						end={this.endUTC}
 						onScroll={this.scroll}
-						ref='slider'>
-						<TimeSliderHours start={time.start} end={time.end} />
-					</div>
+						onChange={this.change} />
 
 					<div style={styles.centerLine}></div>
 				</Sidebar>
 
 				<div className={'ui popup transition top center ' + ((this.state.visible) ? "visible" : "")} style={styles.popup}>
-					12/01 09:00
+					{this.state.time}
 				</div>
 				
 			</div>
@@ -106,15 +136,13 @@ class TimeSliderHours extends React.Component {
 
 	constructor(props) {
 		super(props)
-		let { start, end } = props
+		let { start, end, now } = props
 
-		let startUTC = this.dateStringToDateUTC(start)
-		let endUTC = this.dateStringToDateUTC(end)
-
+		this.showDate = now
 		this.times = []
 		this.hours = 0
 		let timesDay = null
-		for (var d = startUTC; d < endUTC; d += 3 * 3600 * 1000){
+		for (var d = start; d < end; d += 3 * 3600 * 1000){
 			var date = new Date(d);
 			var day = (date.getMonth() + 1) + '/' + ('0' + date.getDate()).slice(-2)
 			var hh = ('0' + date.getHours()).slice(-2)
@@ -130,69 +158,78 @@ class TimeSliderHours extends React.Component {
 				this.times[this.times.length - 1].hours.push(hh)
 			}
 		}
-
-		console.log(this.times)
 	}
+	
+	scroll = (e) => {
+		this.props.onScroll()
 
-	dateStringToDateUTC = (dateString) => {
-		return Date.UTC(
-			dateString.substr(0, 4),
-			dateString.substr(4, 2) - 1,
-			dateString.substr(6, 2),
-			dateString.substr(8, 2),
-			dateString.substr(10, 2)
-		)
+		let scrollLeft = ReactDOM.findDOMNode(this.refs.slider).scrollLeft
+		scrollLeft -= Math.floor((scrollLeft / 24 + 8 - this.times[0].hours.length ) / 8)
+		let hour = Math.floor(scrollLeft / 8)
+
+		let date = this.props.start + hour * 3600 * 1000
+		if (date != this.showDate){
+			this.showDate = date
+			this.props.onChange(date)
+		}
 	}
 
 	render() {
 		let halfWidth = window.innerWidth / 2
 		styles.timeSlider.width = 24 * this.hours + this.times.length + halfWidth
 		return (
-			<div style={styles.timeSlider}>
-				{this.times.map((day) => {
-					console.log(day);
-					if (day.hours.length > 1){
-						return (
-							<div className="time-slider-day"
-								key={day.day}
-								style={{ width: 24 * day.hours.length + 1 }}>
-								{day.day} <br/>
-								<span className="hours">
-									{day.hours.map((hour) => {
-										return <span key={hour}>{hour}</span>
-									})}
-								</span>
-							</div>
-						)
+			<div style={styles.bottomBar}
+				onScroll={this.scroll}
+				ref='slider'>
+				<div style={styles.timeSlider}>
+					{this.times.map((day) => {
+						if (day.hours.length > 1){
+							return (
+								<div className="time-slider-day"
+									key={day.day}
+									style={{ width: 24 * day.hours.length + 1 }}>
+									{day.day} <br/>
+									<span className="hours">
+										{day.hours.map((hour) => {
+											return <span key={hour}>{hour}</span>
+										})}
+									</span>
+								</div>
+							)
 
-					}else if (day.hours[0] == '21'){
-						return (
-							<div className="time-slider-day"
-								key={day.day}
-								style={{ width:49, marginLeft:-24 }}>
-								{day.day} <br/>
-								<span className="hours">
-									<span></span>
-									<span>21</span>
-								</span>
-							</div>
-						)
+						}else if (day.hours[0] == '21'){
+							return (
+								<div className="time-slider-day"
+									key={day.day}
+									style={{ width:49, marginLeft:-24 }}>
+									{day.day} <br/>
+									<span className="hours">
+										<span></span>
+										<span>21</span>
+									</span>
+								</div>
+							)
 
-					}else if (day.hours[0] == '00'){
-						return (
-							<div className="time-slider-day"
-								key={day.day}
-								style={{ width:49, marginRight:-24 }}>
-								{day.day} <br/>
-								<span className="hours">
-									<span>00</span>
-									<span></span>
-								</span>
-							</div>
-						)
-					}
-				})}
-				<div style={{ width:halfWidth, display:'inline-block' }}></div>
+						}else if (day.hours[0] == '00'){
+							return (
+								<div className="time-slider-day"
+									key={day.day}
+									style={{ width:49, marginRight:-24 }}>
+									{day.day} <br/>
+									<span className="hours">
+										<span>00</span>
+										<span></span>
+									</span>
+								</div>
+							)
+						}
+					})}
+					<div style={{
+						width: halfWidth,
+						display: 'inline-block',
+						borderLeft: '1px solid #ccc'
+					}}></div>
+				</div>
 			</div>
 		)
 	}
