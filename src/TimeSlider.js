@@ -4,9 +4,7 @@ import { Sidebar } from 'semantic-ui-react'
 
 const styles = {
 	button: {
-		position: 'absolute',
-		bottom: 10,
-		left: 140,
+		marginLeft: 12,
 		zIndex: 20,
 		color: '#fff',
 		fontSize: 16
@@ -40,6 +38,7 @@ const styles = {
 		zIndex: 222
 	},
 	popup: {
+		position: 'fixed',
 		top: 'auto',
 		bottom: 50,
 		right: '50%',
@@ -125,7 +124,7 @@ export default class TimeSlider extends React.Component {
 
 	render() {
 		return (
-			<div>
+			<div style={{ display:'inline-block' }}>
 				<div style={styles.button} onClick={this.show}>
 					{this.state.time}
 				</div>

@@ -2,9 +2,6 @@ import React from 'react'
 import { Dropdown } from 'semantic-ui-react'
 
 const style = {
-	position: 'absolute',
-	bottom: 10,
-	left: 10,
 	zIndex: 20,
 	color: '#fff',
 	fontSize: 16
