@@ -51,7 +51,7 @@ const styles = {
 		color: '#565656',
 		textAlign: 'center',
 		fontSize: 14,
-		lineHeight: 25,
+		lineHeight: '25px',
 		borderLeft: '1px solid #ccc',
 		background: '#fff',
 	},
