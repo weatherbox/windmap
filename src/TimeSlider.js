@@ -119,6 +119,7 @@ export default class TimeSlider extends React.Component {
 	}
 	
 	change = (date) => {
+		this.scroll()
 		this.setState({ time: this.dateToStr(date) })
 	}
 
@@ -174,12 +175,16 @@ class TimeSliderHours extends React.Component {
 				this.times[this.times.length - 1].hours.push(hh)
 			}
 		}
+		
+		this.halfWidth = window.innerWidth / 2
+		this.timeSliderWidth = 24 * this.hours + this.times.length + this.halfWidth
 	}
 	
 	scroll = (e) => {
 		this.props.onScroll()
 
 		let scrollLeft = ReactDOM.findDOMNode(this.refs.slider).scrollLeft
+		scrollLeft = Math.max(0, Math.min(this.timeSliderWidth, scrollLeft))
 		scrollLeft -= Math.floor((scrollLeft / 24 + 8 - this.times[0].hours.length ) / 8)
 		let hour = Math.floor(scrollLeft / 8)
 
@@ -191,8 +196,7 @@ class TimeSliderHours extends React.Component {
 	}
 
 	render() {
-		let halfWidth = window.innerWidth / 2
-		styles.timeSlider.width = 24 * this.hours + this.times.length + halfWidth
+		styles.timeSlider.width = this.timeSliderWidth
 		return (
 			<div style={styles.bottomBar}
 				onScroll={this.scroll}
@@ -242,7 +246,7 @@ class TimeSliderHours extends React.Component {
 						}
 					})}
 					<div style={{
-						width: halfWidth,
+						width: this.halfWidth,
 						display: 'inline-block'
 					}}></div>
 				</div>
