@@ -45,6 +45,22 @@ const styles = {
 		right: '50%',
 		marginRight: -53,
 	},
+	timeSliderDay: {
+		height: 50,
+		display: 'inline-block',
+		color: '#565656',
+		textAlign: 'center',
+		fontSize: 14,
+		lineHeight: 25,
+		borderLeft: '1px solid #ccc',
+		background: '#fff',
+	},
+	hoursSpan: {
+		width: 24,
+		display: 'inline-block',
+		fontSize: 12,
+		textAlign: 'center',
+	}
 }
 
 const timeToHideBottomBar = 10000
@@ -182,16 +198,17 @@ class TimeSliderHours extends React.Component {
 				onScroll={this.scroll}
 				ref='slider'>
 				<div style={styles.timeSlider}>
-					{this.times.map((day) => {
+					{this.times.map((day, i) => {
 						if (day.hours.length > 1){
+							let width = 24 * day.hours.length + 1
+							let borderLeft = (i == 0) ? 'none' : '1px solid #ccc'
+
 							return (
-								<div className="time-slider-day"
-									key={day.day}
-									style={{ width: 24 * day.hours.length + 1 }}>
+								<div key={day.day} style={Object.assign({}, styles.timeSliderDay, { width:width, borderLeft:borderLeft})}>
 									{day.day} <br/>
 									<span className="hours">
 										{day.hours.map((hour) => {
-											return <span key={hour}>{hour}</span>
+											return <span key={hour} style={styles.hoursSpan}>{hour}</span>
 										})}
 									</span>
 								</div>
@@ -199,26 +216,26 @@ class TimeSliderHours extends React.Component {
 
 						}else if (day.hours[0] == '21'){
 							return (
-								<div className="time-slider-day"
-									key={day.day}
-									style={{ width:49, marginLeft:-24 }}>
+								<div key={day.day} style={Object.assign({}, styles.timeSliderDay, { width:49, marginLeft:-24, borderLeft:'none'})}>
 									{day.day} <br/>
 									<span className="hours">
-										<span></span>
-										<span>21</span>
+										<span style={styles.hoursSpan}></span>
+										<span style={styles.hoursSpan}>21</span>
 									</span>
 								</div>
 							)
 
 						}else if (day.hours[0] == '00'){
+							styles.timeSliderDay.width = 49
+							styles.timeSliderDay.marginRight = -24
+							styles.timeSliderDay.borderLeft = (i == 0) ? 'none' : '1px solid #ccc'
+
 							return (
-								<div className="time-slider-day"
-									key={day.day}
-									style={{ width:49, marginRight:-24 }}>
+								<div key={day.day} style={Object.assign({}, styles.timeSliderDay, { width:49, marginRight:-24 })}>
 									{day.day} <br/>
 									<span className="hours">
-										<span>00</span>
-										<span></span>
+										<span style={styles.hoursSpan}>00</span>
+										<span style={styles.hoursSpan}></span>
 									</span>
 								</div>
 							)
@@ -226,8 +243,7 @@ class TimeSliderHours extends React.Component {
 					})}
 					<div style={{
 						width: halfWidth,
-						display: 'inline-block',
-						borderLeft: '1px solid #ccc'
+						display: 'inline-block'
 					}}></div>
 				</div>
 			</div>
