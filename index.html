@@ -4,33 +4,27 @@
 		<meta charset=utf-8 />
 		<title>WindMap</title>
 		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v1.0.0/leaflet.css" />
+		<link rel="stylesheet" href="//cdn.leafletjs.com/leaflet/v1.0.0/leaflet.css" />
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css"></link>
+		<link rel="stylesheet" href="app.css"></link>
 		<style>
 			body { margin:0; padding:0; }
 			#map { position:absolute; top:0; bottom:0; width:100%; z-index:1; cursor:default; }
-			#loading { position:absolute; width:100px; height:120px; top:50%; left:50%; margin-left:-50px; margin-top:-50px; z-index:11; }
-			#info { position:absolute; left:10px; top:0; z-index:20; }
-			#info h1 { color:#fff; font-size:24px; }
-			#wind-dialog { position:absolute; bottom:10px; right:10px; z-index:20; color:#fff; }
 		</style>
 	</head>
 	<body>
 		<div id='map'></div>
-		<div id="loading"></div>
-		<div id="info">
-			<h1></h1>
-		</div>
-		<div id="wind-dialog"></div>
+		<div id='app'></div>
 
-		<script src="http://cdn.leafletjs.com/leaflet/v1.0.0/leaflet.js"></script>
+		<script src="//cdn.leafletjs.com/leaflet/v1.0.0/leaflet.js"></script>
 		<script src="streamline.js/lib/underscore.js"></script>
 		<script src="streamline.js/streamline.js"></script>
 		<script src="streamline.js/leaflet-streamline.js"></script>
 		<script src="grib2tiles/grib2tile.js"></script>
 		<script src="leaflet-grib2tile.js"></script>
 		<script src="leaflet-windmap.js"></script>
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-		<script src="js/sonic.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script src="bundle.js"></script>
 		<script>
 			$(function() {
 				var map_id = 'tattii.j1a9fl0a';
@@ -40,8 +34,8 @@
 				);
 
 				var map = new L.map('map', {
-						center: [35, 136],
-						zoom: 9,
+						center: [38, 136],
+						zoom: 6,
 						minZoom: 5,
 						maxZoom: 13,
 						attributionControl: false,
@@ -51,6 +45,7 @@
 
 				var windmap = new L.Windmap(map);
 
+				window.map = map;	
 			});
 		</script>
 	</body>
