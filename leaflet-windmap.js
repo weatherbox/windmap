@@ -33,7 +33,7 @@ L.Windmap = L.Class.extend({
 		});
 
 		// set click event
-		map.on("click", this.showPointWind, this);
+		//map.on("click", this.showPointWind, this);
 	},
 
 	_initStreamline: function (url){
