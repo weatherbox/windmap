@@ -34,8 +34,8 @@
 				);
 
 				var map = new L.map('map', {
-						center: [38, 136],
-						zoom: 6,
+						center: [36.5, 137.6],
+						zoom: 5,
 						minZoom: 5,
 						maxZoom: 13,
 						attributionControl: false,
@@ -45,7 +45,8 @@
 
 				var windmap = new L.Windmap(map);
 
-				window.map = map;	
+				window.map = map;
+				window.windmap = windmap;
 			});
 		</script>
 	</body>
