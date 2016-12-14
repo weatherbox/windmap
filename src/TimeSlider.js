@@ -113,9 +113,10 @@ export default class TimeSlider extends React.Component {
 
 	dateToStr = (d) => {
 		let date = new Date(d)
-		let day = (date.getMonth() + 1) + '/' + ('0' + date.getDate()).slice(-2)
+		let mm = ('0' + (date.getMonth() + 1)).slice(-2)
+		let dd = ('0' + date.getDate()).slice(-2)
 		let hh = ('0' + date.getHours()).slice(-2)
-		return day + ' ' + hh + ':00'
+		return mm + '/' + dd + ' ' + hh + ':00'
 	}
 
 	scroll = () => {
