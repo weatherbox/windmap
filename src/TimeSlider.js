@@ -62,10 +62,10 @@ const styles = {
 	}
 }
 
-const timeToHideBottomBar = 10000
+const timeToHideBottomBar = 3000
 const time = {
-	start: "201611301200",
-	end: "201612020300",
+	start: "201612140600",
+	end: "201612152100",
 	interval: "3h"
 }
 
@@ -105,6 +105,15 @@ export default class TimeSlider extends React.Component {
 		)
 	}
 
+	UTCToDateString = (utc) => {
+		let date = new Date(utc)
+		let year = date.getUTCFullYear()
+		let mm = ('0' + (date.getUTCMonth() + 1)).slice(-2)
+		let dd = ('0' + date.getUTCDate()).slice(-2)
+		let hh = ('0' + date.getUTCHours()).slice(-2)
+		return year + mm + dd + hh + '00'
+	}
+
 	dateToStr = (d) => {
 		let date = new Date(d)
 		let day = (date.getMonth() + 1) + '/' + ('0' + date.getDate()).slice(-2)
@@ -120,6 +129,12 @@ export default class TimeSlider extends React.Component {
 	change = (date) => {
 		this.scroll()
 		this.setState({ time: this.dateToStr(date) })
+
+		if (this._updateTimer) clearTimeout(this._updateTimer)
+		let time = this.UTCToDateString(date)
+		this._updateTimer = setTimeout(function (){
+			window.windmap.setTime(time)
+		}, 1000);
 	}
 
 	render() {

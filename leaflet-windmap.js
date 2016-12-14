@@ -23,21 +23,33 @@ L.Windmap = L.Class.extend({
 		this.createLoading();
 		var self = this;
 		this._getTileJson(function (data) {
-			self._tileData = data;
-			self._setDate(self._tileData.ref_time);
+			self.data = data;
 
-			var valid_time = self._tileData.surface.valid_time[0];
-			var url = self._tileData.url.replace("{valid_time}", valid_time);
-			url = url.replace("{level}", "surface");
-			self._initStreamline(url);	
+			self.time = self.data.surface.valid_time[0];
+			self.level = 'surface';
+
+			self._initStreamline();	
 		});
 
 		// set click event
 		//map.on("click", this.showPointWind, this);
 	},
+	
+	setTime: function (time){
+		this.time = time;
+		this._update();
+	},
 
-	_initStreamline: function (url){
+
+	_initGrib2tile: function (){
+		var url = this.data.url.replace("{valid_time}", this.time)
+			.replace("{level}", this.level);
+
 		this._grib2tile = new L.Grib2tile(url);
+	},
+
+	_initStreamline: function (){
+		this._initGrib2tile();
 
 		this._streamline = new L.Streamline(this._grib2tile, {
 			onUpdate: function (){ $("#loading").show(); },
@@ -46,11 +58,11 @@ L.Windmap = L.Class.extend({
 		this._streamline.addTo(this._map);
 	},
 
-	_setDate: function (t) {
-		var date = new Date(Date.UTC(t.substr(0, 4), t.substr(4, 2), t.substr(6, 2), t.substr(8, 2)));
-		$("h1").text(date.toString() + " / Surface / MSM");
+	_update: function (){
+		this._initGrib2tile();
+		this._streamline.setWindData(this._grib2tile);
 	},
-
+	
 	_getTileJson: function (callback) {
 		$.getJSON(this.options.tileJson, function (data) {
 			callback(data);
