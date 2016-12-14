@@ -32,9 +32,9 @@ L.Windmap = L.Class.extend({
 
 			var valid_time = data.surface.valid_time;
 			window.windmapUI.setTimeSlider(
-				valid_time[0],
-				valid_time[valid_time.length - 1],
-				self.time
+				self.utc(valid_time[0]),
+				self.utc(valid_time[valid_time.length - 1]),
+				self.utc(self.time)
 			);
 		});
 
@@ -42,8 +42,8 @@ L.Windmap = L.Class.extend({
 		//map.on("click", this.showPointWind, this);
 	},
 	
-	setTime: function (time){
-		this.time = time;
+	setTime: function (utc){
+		this.time = this.dateString(utc);
 		this._update();
 	},
 
@@ -108,6 +108,27 @@ L.Windmap = L.Class.extend({
 		if (this._pointMarker) this._map.removeLayer(this._pointMarker);
 		this._pointMarker = null;
 		$("#wind-dialog").text("");
+	},
+
+	utc: function (dateString){
+		return Date.UTC(
+			dateString.substr(0, 4),
+			dateString.substr(4, 2) - 1,
+			dateString.substr(6, 2),
+			dateString.substr(8, 2),
+			dateString.substr(10, 2)
+		);
+	},
+
+	dateString: function (utc){
+		let date = new Date(utc);
+		let year = date.getUTCFullYear();
+		let MM = ('0' + (date.getUTCMonth() + 1)).slice(-2);
+		let dd = ('0' + date.getUTCDate()).slice(-2);
+		let hh = ('0' + date.getUTCHours()).slice(-2);
+		let mm = ('0' + date.getUTCMinutes()).slice(-2);
+		return year + MM + dd + hh + mm
 	}
+
 });
 

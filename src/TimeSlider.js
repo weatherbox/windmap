@@ -73,11 +73,11 @@ export default class TimeSlider extends React.Component {
 	
 	constructor(props) {
 		super(props)
-		this.startUTC = this.dateStringToDateUTC(props.start)
-		this.endUTC = this.dateStringToDateUTC(props.end)
-		this.nowUTC = this.dateStringToDateUTC(props.now)
+		this.start = props.start
+		this.end = props.end
+		this.now = props.now
 
-		this.state.time = this.dateToStr(this.nowUTC)
+		this.state.time = this.dateToStr(this.now)
 	}
 	
 	hide = () => {
@@ -90,25 +90,6 @@ export default class TimeSlider extends React.Component {
 
 		this._timer = setTimeout(this.hide, timeToHideBottomBar)
 		window.map.on('preclick', this.hide)
-	}
-	
-	dateStringToDateUTC = (dateString) => {
-		return Date.UTC(
-			dateString.substr(0, 4),
-			dateString.substr(4, 2) - 1,
-			dateString.substr(6, 2),
-			dateString.substr(8, 2),
-			dateString.substr(10, 2)
-		)
-	}
-
-	UTCToDateString = (utc) => {
-		let date = new Date(utc)
-		let year = date.getUTCFullYear()
-		let mm = ('0' + (date.getUTCMonth() + 1)).slice(-2)
-		let dd = ('0' + date.getUTCDate()).slice(-2)
-		let hh = ('0' + date.getUTCHours()).slice(-2)
-		return year + mm + dd + hh + '00'
 	}
 
 	dateToStr = (d) => {
@@ -129,9 +110,8 @@ export default class TimeSlider extends React.Component {
 		this.setState({ time: this.dateToStr(date) })
 
 		if (this._updateTimer) clearTimeout(this._updateTimer)
-		let time = this.UTCToDateString(date)
 		this._updateTimer = setTimeout(function (){
-			window.windmap.setTime(time)
+			window.windmap.setTime(date)
 		}, timeToUpdate);
 	}
 
@@ -144,9 +124,9 @@ export default class TimeSlider extends React.Component {
 
 				<Sidebar as='div' animation='overlay' direction='bottom' visible={this.state.visible}>
 					<TimeSliderHours
-						start={this.startUTC}
-						end={this.endUTC}
-						now={this.nowUTC}
+						start={this.start}
+						end={this.end}
+						now={this.now}
 						onScroll={this.scroll}
 						onChange={this.change} />
 
@@ -200,7 +180,6 @@ class TimeSliderHours extends React.Component {
 
 	_getPosition = (time) => {
 		let hour = Math.floor((time - this.props.start) / (3600 * 1000))
-		console.log(hour)
 		let border = Math.floor((hour - 3 * this.times[0].hours.length) / 24) + 1
 		return hour * 8 + border
 	}
