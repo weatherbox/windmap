@@ -28,7 +28,14 @@ L.Windmap = L.Class.extend({
 			self.time = self.data.surface.valid_time[0];
 			self.level = 'surface';
 
-			self._initStreamline();	
+			self._initStreamline();
+
+			var valid_time = data.surface.valid_time;
+			window.windmapUI.setTimeSlider(
+				valid_time[0],
+				valid_time[valid_time.length - 1],
+				self.time
+			);
 		});
 
 		// set click event
@@ -59,6 +66,7 @@ L.Windmap = L.Class.extend({
 	},
 
 	_update: function (){
+		this._grib2tile.abort();
 		this._initGrib2tile();
 		this._streamline.setWindData(this._grib2tile);
 	},

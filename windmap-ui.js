@@ -15,17 +15,41 @@ const style = {
 }
 
 class WindmapUI extends React.Component {
+	state = {
+		showTimeSlider: false
+	}
+
+	constructor(props) {
+		super(props)
+
+		let self = this
+		window.windmapUI = {
+			setTimeSlider: function (start, end, now){
+				self.setState({ showTimeSlider: true, start, end, now })
+			},
+
+		}
+	}
+
 	render() {
+		let state = this.state
+
 		return (
 			<div style={style}>
 				<LevelDropdown />
 				<ElementDropdown />
-				<TimeSlider 
-					start="201612140600"
-					end="201612152100"
-					now="201612141200"
-					interval="1h"
-				/>
+				{(() => {
+					if (state.showTimeSlider){
+						return (
+							<TimeSlider 
+								start={state.start}
+								end={state.end}
+								now={state.now}
+								interval={state.interval}
+							/>
+						)
+					}
+				})()}
 			</div>
 		)
 	}
