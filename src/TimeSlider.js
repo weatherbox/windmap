@@ -63,11 +63,7 @@ const styles = {
 }
 
 const timeToHideBottomBar = 3000
-const time = {
-	start: "201612140600",
-	end: "201612152100",
-	interval: "3h"
-}
+const timeToUpdate = 1000
 
 export default class TimeSlider extends React.Component {
 	state = {
@@ -77,10 +73,11 @@ export default class TimeSlider extends React.Component {
 	
 	constructor(props) {
 		super(props)
-		this.startUTC = this.dateStringToDateUTC(time.start)
-		this.endUTC = this.dateStringToDateUTC(time.end)
+		this.startUTC = this.dateStringToDateUTC(props.start)
+		this.endUTC = this.dateStringToDateUTC(props.end)
+		this.nowUTC = this.dateStringToDateUTC(props.now)
 
-		this.state.time = this.dateToStr(this.startUTC)
+		this.state.time = this.dateToStr(this.nowUTC)
 	}
 	
 	hide = () => {
@@ -134,7 +131,7 @@ export default class TimeSlider extends React.Component {
 		let time = this.UTCToDateString(date)
 		this._updateTimer = setTimeout(function (){
 			window.windmap.setTime(time)
-		}, 1000);
+		}, timeToUpdate);
 	}
 
 	render() {
@@ -148,6 +145,7 @@ export default class TimeSlider extends React.Component {
 					<TimeSliderHours
 						start={this.startUTC}
 						end={this.endUTC}
+						now={this.nowUTC}
 						onScroll={this.scroll}
 						onChange={this.change} />
 
@@ -167,13 +165,21 @@ class TimeSliderHours extends React.Component {
 
 	constructor(props) {
 		super(props)
-		let { start, end, now } = props
-
-		this.showDate = now
+		
+		this.showDate = this.props.now
 		this.times = []
 		this.hours = 0
+		this._createTimesList()
+		
+		this.halfWidth = window.innerWidth / 2
+		this.timeSliderWidth = 24 * this.hours + this.times.length + this.halfWidth
+
+		this.initPosition = this._getPosition(this.props.now)
+	}
+
+	_createTimesList = () => {
 		let timesDay = null
-		for (var d = start; d < end; d += 3 * 3600 * 1000){
+		for (var d = this.props.start; d < this.props.end; d += 3 * 3600 * 1000){
 			var date = new Date(d);
 			var day = (date.getMonth() + 1) + '/' + ('0' + date.getDate()).slice(-2)
 			var hh = ('0' + date.getHours()).slice(-2)
@@ -189,11 +195,15 @@ class TimeSliderHours extends React.Component {
 				this.times[this.times.length - 1].hours.push(hh)
 			}
 		}
-		
-		this.halfWidth = window.innerWidth / 2
-		this.timeSliderWidth = 24 * this.hours + this.times.length + this.halfWidth
 	}
-	
+
+	_getPosition = (time) => {
+		let hour = Math.floor((time - this.props.start) / (3600 * 1000))
+		console.log(hour)
+		let border = Math.floor((hour - 3 * this.times[0].hours.length) / 24) + 1
+		return hour * 8 + border
+	}
+
 	scroll = (e) => {
 		this.props.onScroll()
 
@@ -206,6 +216,12 @@ class TimeSliderHours extends React.Component {
 		if (date != this.showDate){
 			this.showDate = date
 			this.props.onChange(date)
+		}
+	}
+
+	componentDidMount() {
+		if (this.initPosition){
+			ReactDOM.findDOMNode(this.refs.slider).scrollLeft = this.initPosition
 		}
 	}
 

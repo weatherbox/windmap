@@ -20,7 +20,12 @@ class WindmapUI extends React.Component {
 			<div style={style}>
 				<LevelDropdown />
 				<ElementDropdown />
-				<TimeSlider />
+				<TimeSlider 
+					start="201612140600"
+					end="201612152100"
+					now="201612141200"
+					interval="1h"
+				/>
 			</div>
 		)
 	}
