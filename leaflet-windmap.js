@@ -25,17 +25,22 @@ L.Windmap = L.Class.extend({
 		this._getTileJson(function (data) {
 			self.data = data;
 
-			self.time = self.data.surface.valid_time[0];
+			// init time
+			var valid_time = data.surface.valid_time;
+			self.start_time = self.utc(valid_time[0]);
+			self.end_time = self.utc(valid_time[valid_time.length - 1]);
+
+			// show last o-clock
+			var now = Math.floor(Date.now() / (3600 * 1000)) * 3600 * 1000;
+			self.time = Math.max(self.start_time, Math.min(self.end_time, now));
+
+			// init windmap elements
 			self.level = 'surface';
+			self.element = 'wind';
 
 			self._initStreamline();
 
-			var valid_time = data.surface.valid_time;
-			window.windmapUI.setTimeSlider(
-				self.utc(valid_time[0]),
-				self.utc(valid_time[valid_time.length - 1]),
-				self.utc(self.time)
-			);
+			window.windmapUI.setTimeSlider(self.start_time, self.end_time, self.time);
 		});
 
 		// set click event
@@ -43,13 +48,14 @@ L.Windmap = L.Class.extend({
 	},
 	
 	setTime: function (utc){
-		this.time = this.dateString(utc);
+		this.time = utc;
 		this._update();
 	},
 
 
 	_initGrib2tile: function (){
-		var url = this.data.url.replace("{valid_time}", this.time)
+		var url = this.data.url
+			.replace("{valid_time}", this.dateString(this.time))
 			.replace("{level}", this.level);
 
 		this._grib2tile = new L.Grib2tile(url);
