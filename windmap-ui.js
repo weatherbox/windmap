@@ -4,6 +4,7 @@ import { render } from 'react-dom'
 import LevelDropdown from './src/LevelDropdown'
 import ElementDropdown from './src/ElementDropdown'
 import TimeSlider from './src/TimeSlider'
+import Loader from './src/Loader'
 
 const style = {
 	position: 'absolute',
@@ -13,6 +14,10 @@ const style = {
 	display: 'inline-block',
 	padding: 10,
 }
+
+const loaderStyle = {
+	display: 'inline-block',
+};
 
 class WindmapUI extends React.Component {
 	state = {
@@ -60,6 +65,7 @@ class WindmapUI extends React.Component {
 						)
 					}
 				})()}
+				<Loader />
 			</div>
 		)
 	}
