@@ -51,7 +51,13 @@ L.Windmap = L.Class.extend({
 		this.time = utc;
 		this._update();
 	},
-
+	
+	setLevel: function (level){
+		if (level != this.level){
+			this.level = level;
+			this._update();
+		}
+	},
 
 	_initGrib2tile: function (){
 		var url = this.data.url

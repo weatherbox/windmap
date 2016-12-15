@@ -16,7 +16,8 @@ const style = {
 
 class WindmapUI extends React.Component {
 	state = {
-		showTimeSlider: false
+		showTimeSlider: false,
+		level: 'surface'
 	}
 
 	constructor(props) {
@@ -27,7 +28,9 @@ class WindmapUI extends React.Component {
 			setTimeSlider: function (start, end, now){
 				self.setState({ showTimeSlider: true, start, end, now })
 			},
-
+			setLevel: function (level){
+				self.setState({ level })
+			}
 		}
 	}
 
@@ -36,7 +39,7 @@ class WindmapUI extends React.Component {
 
 		return (
 			<div style={style}>
-				<LevelDropdown />
+				<LevelDropdown level={state.level} />
 				<ElementDropdown />
 				{(() => {
 					if (state.showTimeSlider){

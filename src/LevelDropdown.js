@@ -22,7 +22,7 @@ const options = [
 
 export default class LevelDropdown extends React.Component {
 	handleChange = (e, {value}) => {
-		console.log(value)
+		window.windmap.setLevel(value)
 	}
 
 	render() {
@@ -30,7 +30,7 @@ export default class LevelDropdown extends React.Component {
 			<Dropdown
 				className='level-dropdown'
 				options={options}
-				defaultValue='surface'
+				defaultValue={this.props.level}
 				onChange={this.handleChange}
 				pointing='bottom left'
 				icon={null}
