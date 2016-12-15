@@ -86,8 +86,8 @@ L.Windmap = L.Class.extend({
 		this._initGrib2tile();
 
 		this._streamline = new L.Streamline(this._grib2tile, {
-			onUpdate: function (){ $("#loading").show(); },
-			onUpdated: function (){ $("#loading").hide(); }
+			onUpdate: window.windmapUI.showLoading,
+			onUpdated: window.windmapUI.hideLoading
 		});
 		this._streamline.addTo(this._map);
 	},

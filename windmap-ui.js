@@ -15,15 +15,12 @@ const style = {
 	padding: 10,
 }
 
-const loaderStyle = {
-	display: 'inline-block',
-};
-
 class WindmapUI extends React.Component {
 	state = {
 		showTimeSlider: false,
 		interval: '1h',
 		level: 'surface',
+		loading: true,
 	}
 
 	constructor(props) {
@@ -42,6 +39,12 @@ class WindmapUI extends React.Component {
 			},
 			setLevel: function (level){
 				self.setState({ level })
+			},
+			showLoading: function (){
+				self.setState({ loading: true })
+			},
+			hideLoading: function (){
+				self.setState({ loading: false })
 			},
 		}
 	}
@@ -65,7 +68,13 @@ class WindmapUI extends React.Component {
 						)
 					}
 				})()}
-				<Loader />
+				{(() => {
+					if (state.loading){
+						return (
+							<Loader />
+						)
+					}
+				})()}
 			</div>
 		)
 	}
