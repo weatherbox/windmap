@@ -88,6 +88,7 @@ export default class TimeSlider extends React.Component {
 	show = () => {
 		this.setState({ visible: true })
 
+		if (this._timer) clearTimeout(this._timer)
 		this._timer = setTimeout(this.hide, timeToHideBottomBar)
 		window.map.on('preclick', this.hide)
 	}
@@ -229,6 +230,7 @@ class TimeSliderHours extends React.Component {
 		return (
 			<div style={styles.bottomBar}
 				onScroll={this.scroll}
+				onTouchStart={this.props.onScroll}
 				ref='slider'>
 				<div style={styles.timeSlider}>
 					{this.times.map((day, i) => {
