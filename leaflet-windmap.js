@@ -77,7 +77,9 @@ L.Windmap = L.Class.extend({
 			.replace("{valid_time}", this.dateString(this.time))
 			.replace("{level}", this.level);
 
-		this._grib2tile = new L.Grib2tile(url);
+		var tileZoom = (this.level == 'surface') ? [1, 2] : [1];
+
+		this._grib2tile = new L.Grib2tile(url, { tileZoom: tileZoom });
 	},
 
 	_initStreamline: function (){
