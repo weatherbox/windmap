@@ -116,6 +116,11 @@ export default class TimeSlider extends React.Component {
 	}
 
 	render() {
+		if (this.props.now != this.now){
+			this.now = this.props.now
+			this.state.time = this.dateToStr(this.props.now)
+		}
+
 		return (
 			<div style={{ display:'inline-block' }}>
 				<div style={styles.button} onClick={this.show}>
@@ -127,6 +132,7 @@ export default class TimeSlider extends React.Component {
 						start={this.start}
 						end={this.end}
 						now={this.now}
+						interval={this.props.interval}
 						onScroll={this.scroll}
 						onChange={this.change} />
 
@@ -148,6 +154,8 @@ class TimeSliderHours extends React.Component {
 		super(props)
 		
 		this.showDate = this.props.now
+		this.changeInterval(this.props.interval)
+
 		this.times = []
 		this.hours = 0
 		this._createTimesList()
@@ -190,13 +198,19 @@ class TimeSliderHours extends React.Component {
 		let scrollLeft = ReactDOM.findDOMNode(this.refs.slider).scrollLeft
 		scrollLeft = Math.max(0, Math.min(this.timeSliderWidth, scrollLeft))
 		scrollLeft -= Math.floor((scrollLeft / 24 + 8 - this.times[0].hours.length ) / 8)
-		let hour = Math.floor(scrollLeft / 8)
+		let hour = Math.floor(scrollLeft / 8 / this.intervalHour) * this.intervalHour
 
 		let date = this.props.start + hour * 3600 * 1000
 		if (date != this.showDate){
 			this.showDate = date
 			this.props.onChange(date)
 		}
+	}
+
+	changeInterval = (interval) => {
+		this.interval = interval
+		if (interval == '3h') this.intervalHour = 3
+		if (interval == '1h') this.intervalHour = 1
 	}
 
 	componentDidMount() {
@@ -206,7 +220,12 @@ class TimeSliderHours extends React.Component {
 	}
 
 	render() {
+		if (this.props.interval != this.interval){
+			this.changeInterval(this.props.interval)
+		}
+
 		styles.timeSlider.width = this.timeSliderWidth
+
 		return (
 			<div style={styles.bottomBar}
 				onScroll={this.scroll}

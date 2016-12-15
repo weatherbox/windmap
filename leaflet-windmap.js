@@ -54,6 +54,19 @@ L.Windmap = L.Class.extend({
 	
 	setLevel: function (level){
 		if (level != this.level){
+
+			// surface <-> upper
+			if (this.level == 'surface' && level != 'surface'){
+				var time_3h = Math.round(this.time / (3 * 3600 * 1000)) * 3 * 3600 * 1000
+				window.windmapUI.changeTimeSliderInterval('3h')
+				window.windmapUI.changeTimeSliderTime(time_3h)
+
+				this.time = time_3h;
+
+			}else if (this.level != 'surface' && level == 'surface'){
+				window.windmapUI.changeTimeSliderInterval('1h');
+			}
+
 			this.level = level;
 			this._update();
 		}

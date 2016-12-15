@@ -17,7 +17,8 @@ const style = {
 class WindmapUI extends React.Component {
 	state = {
 		showTimeSlider: false,
-		level: 'surface'
+		interval: '1h',
+		level: 'surface',
 	}
 
 	constructor(props) {
@@ -28,9 +29,15 @@ class WindmapUI extends React.Component {
 			setTimeSlider: function (start, end, now){
 				self.setState({ showTimeSlider: true, start, end, now })
 			},
+			changeTimeSliderTime: function (now){
+				self.setState({ now })
+			},
+			changeTimeSliderInterval: function (interval){
+				self.setState({ interval })
+			},
 			setLevel: function (level){
 				self.setState({ level })
-			}
+			},
 		}
 	}
 
