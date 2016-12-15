@@ -261,12 +261,8 @@ class TimeSliderHours extends React.Component {
 							)
 
 						}else if (day.hours[0] == '00'){
-							styles.timeSliderDay.width = 49
-							styles.timeSliderDay.marginRight = -24
-							styles.timeSliderDay.borderLeft = (i == 0) ? 'none' : '1px solid #ccc'
-
 							return (
-								<div key={day.day} style={Object.assign({}, styles.timeSliderDay, { width:49, marginRight:-24 })}>
+								<div key={day.day} style={Object.assign({}, styles.timeSliderDay, { width:49, marginRight:-24, borderLeft:'1px solid #ccc' })}>
 									{day.day} <br/>
 									<span className="hours">
 										<span style={styles.hoursSpan}>00</span>
