@@ -23,34 +23,81 @@ L.Windmap = L.Class.extend({
 		this.createLoading();
 		var self = this;
 		this._getTileJson(function (data) {
-			self._tileData = data;
-			self._setDate(self._tileData.ref_time);
+			self.data = data;
 
-			var valid_time = self._tileData.surface.valid_time[0];
-			var url = self._tileData.url.replace("{valid_time}", valid_time);
-			url = url.replace("{level}", "surface");
-			self._initStreamline(url);	
+			// init time
+			var valid_time = data.surface.valid_time;
+			self.start_time = self.utc(valid_time[0]);
+			self.end_time = self.utc(valid_time[valid_time.length - 1]);
+
+			// show last o-clock
+			var now = Math.floor(Date.now() / (3600 * 1000)) * 3600 * 1000;
+			self.time = Math.max(self.start_time, Math.min(self.end_time, now));
+
+			// init windmap elements
+			self.level = 'surface';
+			self.element = 'wind';
+
+			self._initStreamline();
+
+			window.windmapUI.setTimeSlider(self.start_time, self.end_time, self.time);
 		});
 
 		// set click event
 		//map.on("click", this.showPointWind, this);
 	},
+	
+	setTime: function (utc){
+		this.time = utc;
+		this._update();
+	},
+	
+	setLevel: function (level){
+		if (level != this.level){
 
-	_initStreamline: function (url){
-		this._grib2tile = new L.Grib2tile(url);
+			// surface <-> upper
+			if (this.level == 'surface' && level != 'surface'){
+				var time_3h = Math.round(this.time / (3 * 3600 * 1000)) * 3 * 3600 * 1000
+				window.windmapUI.changeTimeSliderInterval('3h')
+				window.windmapUI.changeTimeSliderTime(time_3h)
+
+				this.time = time_3h;
+
+			}else if (this.level != 'surface' && level == 'surface'){
+				window.windmapUI.changeTimeSliderInterval('1h');
+			}
+
+			this.level = level;
+			this._update();
+		}
+	},
+
+	_initGrib2tile: function (){
+		var url = this.data.url
+			.replace("{valid_time}", this.dateString(this.time))
+			.replace("{level}", this.level);
+
+		var tileZoom = (this.level == 'surface') ? [1, 2] : [1];
+
+		this._grib2tile = new L.Grib2tile(url, { tileZoom: tileZoom });
+	},
+
+	_initStreamline: function (){
+		this._initGrib2tile();
 
 		this._streamline = new L.Streamline(this._grib2tile, {
-			onUpdate: function (){ $("#loading").show(); },
-			onUpdated: function (){ $("#loading").hide(); }
+			onUpdate: window.windmapUI.showLoading,
+			onUpdated: window.windmapUI.hideLoading
 		});
 		this._streamline.addTo(this._map);
 	},
 
-	_setDate: function (t) {
-		var date = new Date(Date.UTC(t.substr(0, 4), t.substr(4, 2), t.substr(6, 2), t.substr(8, 2)));
-		$("h1").text(date.toString() + " / Surface / MSM");
+	_update: function (){
+		this._grib2tile.abort();
+		this._initGrib2tile();
+		this._streamline.setWindData(this._grib2tile);
 	},
-
+	
 	_getTileJson: function (callback) {
 		$.getJSON(this.options.tileJson, function (data) {
 			callback(data);
@@ -88,6 +135,27 @@ L.Windmap = L.Class.extend({
 		if (this._pointMarker) this._map.removeLayer(this._pointMarker);
 		this._pointMarker = null;
 		$("#wind-dialog").text("");
+	},
+
+	utc: function (dateString){
+		return Date.UTC(
+			dateString.substr(0, 4),
+			dateString.substr(4, 2) - 1,
+			dateString.substr(6, 2),
+			dateString.substr(8, 2),
+			dateString.substr(10, 2)
+		);
+	},
+
+	dateString: function (utc){
+		let date = new Date(utc);
+		let year = date.getUTCFullYear();
+		let MM = ('0' + (date.getUTCMonth() + 1)).slice(-2);
+		let dd = ('0' + date.getUTCDate()).slice(-2);
+		let hh = ('0' + date.getUTCHours()).slice(-2);
+		let mm = ('0' + date.getUTCMinutes()).slice(-2);
+		return year + MM + dd + hh + mm
 	}
+
 });
 

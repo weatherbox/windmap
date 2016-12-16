@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Sidebar } from 'semantic-ui-react'
+import Loader from './Loader'
 
 const styles = {
 	button: {
@@ -59,15 +60,18 @@ const styles = {
 		display: 'inline-block',
 		fontSize: 12,
 		textAlign: 'center',
+	},
+	loading: {
+		position: 'fixed',
+		display: 'block',
+		bottom: 72,
+		left: "50%",
+		marginLeft: 53,
 	}
 }
 
-const timeToHideBottomBar = 10000
-const time = {
-	start: "201611301200",
-	end: "201612020300",
-	interval: "3h"
-}
+const timeToHideBottomBar = 3000
+const timeToUpdate = 500
 
 export default class TimeSlider extends React.Component {
 	state = {
@@ -77,10 +81,11 @@ export default class TimeSlider extends React.Component {
 	
 	constructor(props) {
 		super(props)
-		this.startUTC = this.dateStringToDateUTC(time.start)
-		this.endUTC = this.dateStringToDateUTC(time.end)
+		this.start = props.start
+		this.end = props.end
+		this.now = props.now
 
-		this.state.time = this.dateToStr(this.startUTC)
+		this.state.time = this.dateToStr(this.now)
 	}
 	
 	hide = () => {
@@ -91,25 +96,17 @@ export default class TimeSlider extends React.Component {
 	show = () => {
 		this.setState({ visible: true })
 
+		if (this._timer) clearTimeout(this._timer)
 		this._timer = setTimeout(this.hide, timeToHideBottomBar)
 		window.map.on('preclick', this.hide)
-	}
-	
-	dateStringToDateUTC = (dateString) => {
-		return Date.UTC(
-			dateString.substr(0, 4),
-			dateString.substr(4, 2) - 1,
-			dateString.substr(6, 2),
-			dateString.substr(8, 2),
-			dateString.substr(10, 2)
-		)
 	}
 
 	dateToStr = (d) => {
 		let date = new Date(d)
-		let day = (date.getMonth() + 1) + '/' + ('0' + date.getDate()).slice(-2)
+		let mm = ('0' + (date.getMonth() + 1)).slice(-2)
+		let dd = ('0' + date.getDate()).slice(-2)
 		let hh = ('0' + date.getHours()).slice(-2)
-		return day + ' ' + hh + ':00'
+		return mm + '/' + dd + ' ' + hh + ':00'
 	}
 
 	scroll = () => {
@@ -120,9 +117,22 @@ export default class TimeSlider extends React.Component {
 	change = (date) => {
 		this.scroll()
 		this.setState({ time: this.dateToStr(date) })
+
+		if (this._updateTimer) clearTimeout(this._updateTimer)
+		this._updateTimer = setTimeout(function (){
+			window.windmap.setTime(date)
+		}, timeToUpdate);
 	}
 
 	render() {
+		if (this.props.now != this.now){
+			this.now = this.props.now
+			this.state.time = this.dateToStr(this.props.now)
+		}
+
+		let loading = this.props.loading
+		let visible = this.state.visible
+
 		return (
 			<div style={{ display:'inline-block' }}>
 				<div style={styles.button} onClick={this.show}>
@@ -131,8 +141,10 @@ export default class TimeSlider extends React.Component {
 
 				<Sidebar as='div' animation='overlay' direction='bottom' visible={this.state.visible}>
 					<TimeSliderHours
-						start={this.startUTC}
-						end={this.endUTC}
+						start={this.start}
+						end={this.end}
+						now={this.now}
+						interval={this.props.interval}
 						onScroll={this.scroll}
 						onChange={this.change} />
 
@@ -143,6 +155,15 @@ export default class TimeSlider extends React.Component {
 					{this.state.time}
 				</div>
 				
+				{(() => {
+					if (loading && visible){
+						return (
+							<div style={styles.loading}>
+								<Loader />
+							</div>
+						)
+					}
+				})()}
 			</div>
 		)
 	}
@@ -152,13 +173,23 @@ class TimeSliderHours extends React.Component {
 
 	constructor(props) {
 		super(props)
-		let { start, end, now } = props
+		
+		this.showDate = this.props.now
+		this.changeInterval(this.props.interval)
 
-		this.showDate = now
 		this.times = []
 		this.hours = 0
+		this._createTimesList()
+		
+		this.halfWidth = window.innerWidth / 2
+		this.timeSliderWidth = 24 * this.hours + this.times.length + this.halfWidth
+
+		this.initPosition = this._getPosition(this.props.now)
+	}
+
+	_createTimesList = () => {
 		let timesDay = null
-		for (var d = start; d < end; d += 3 * 3600 * 1000){
+		for (var d = this.props.start; d < this.props.end; d += 3 * 3600 * 1000){
 			var date = new Date(d);
 			var day = (date.getMonth() + 1) + '/' + ('0' + date.getDate()).slice(-2)
 			var hh = ('0' + date.getHours()).slice(-2)
@@ -174,18 +205,21 @@ class TimeSliderHours extends React.Component {
 				this.times[this.times.length - 1].hours.push(hh)
 			}
 		}
-		
-		this.halfWidth = window.innerWidth / 2
-		this.timeSliderWidth = 24 * this.hours + this.times.length + this.halfWidth
 	}
-	
+
+	_getPosition = (time) => {
+		let hour = Math.floor((time - this.props.start) / (3600 * 1000))
+		let border = Math.floor((hour - 3 * this.times[0].hours.length) / 24) + 1
+		return hour * 8 + border
+	}
+
 	scroll = (e) => {
 		this.props.onScroll()
 
 		let scrollLeft = ReactDOM.findDOMNode(this.refs.slider).scrollLeft
 		scrollLeft = Math.max(0, Math.min(this.timeSliderWidth, scrollLeft))
 		scrollLeft -= Math.floor((scrollLeft / 24 + 8 - this.times[0].hours.length ) / 8)
-		let hour = Math.floor(scrollLeft / 8)
+		let hour = Math.floor(scrollLeft / 8 / this.intervalHour) * this.intervalHour
 
 		let date = this.props.start + hour * 3600 * 1000
 		if (date != this.showDate){
@@ -194,11 +228,29 @@ class TimeSliderHours extends React.Component {
 		}
 	}
 
+	changeInterval = (interval) => {
+		this.interval = interval
+		if (interval == '3h') this.intervalHour = 3
+		if (interval == '1h') this.intervalHour = 1
+	}
+
+	componentDidMount() {
+		if (this.initPosition){
+			ReactDOM.findDOMNode(this.refs.slider).scrollLeft = this.initPosition
+		}
+	}
+
 	render() {
+		if (this.props.interval != this.interval){
+			this.changeInterval(this.props.interval)
+		}
+
 		styles.timeSlider.width = this.timeSliderWidth
+
 		return (
 			<div style={styles.bottomBar}
 				onScroll={this.scroll}
+				onTouchStart={this.props.onScroll}
 				ref='slider'>
 				<div style={styles.timeSlider}>
 					{this.times.map((day, i) => {
@@ -229,12 +281,8 @@ class TimeSliderHours extends React.Component {
 							)
 
 						}else if (day.hours[0] == '00'){
-							styles.timeSliderDay.width = 49
-							styles.timeSliderDay.marginRight = -24
-							styles.timeSliderDay.borderLeft = (i == 0) ? 'none' : '1px solid #ccc'
-
 							return (
-								<div key={day.day} style={Object.assign({}, styles.timeSliderDay, { width:49, marginRight:-24 })}>
+								<div key={day.day} style={Object.assign({}, styles.timeSliderDay, { width:49, marginRight:-24, borderLeft:'1px solid #ccc' })}>
 									{day.day} <br/>
 									<span className="hours">
 										<span style={styles.hoursSpan}>00</span>
