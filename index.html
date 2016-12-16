@@ -9,7 +9,7 @@
 		<link rel="stylesheet" href="app.css"></link>
 		<style>
 			body { margin:0; padding:0; }
-			#map { position:absolute; top:0; bottom:0; width:100%; z-index:1; cursor:default; }
+			#map { position:absolute; top:0; bottom:0; width:100%; z-index:1; cursor:default; background:#202020; }
 		</style>
 	</head>
 	<body>
@@ -26,12 +26,9 @@
 		<script src="bundle.js"></script>
 		<script>
 			$(function() {
-				var map_id = 'tattii.j1a9fl0a';
-				var mapboxTiles = new L.tileLayer(
-					'https://{s}.tiles.mapbox.com/v3/' + map_id + '/{z}/{x}/{y}.png',
-					{ attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Mapbox</a>' }
-				);
-
+				var map_id = 'tattii.77d8c7e1';
+				var token = 'pk.eyJ1IjoidGF0dGlpIiwiYSI6ImxKQ1hwOXcifQ.xGx4WsNt9GMqbZ0T5A7C8Q';
+				var mapboxTiles = new L.tileLayer('//{s}.tiles.mapbox.com/v4/' + map_id + '/{z}/{x}/{y}.png?access_token=' + token);
 				var map = new L.map('map', {
 						center: [36.5, 137.6],
 						zoom: 5,
