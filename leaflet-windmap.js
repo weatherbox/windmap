@@ -20,7 +20,6 @@ L.Windmap = L.Class.extend({
 		this._map = map;
 		L.setOptions(this, options);
 
-		this.createLoading();
 		var self = this;
 		this._getTileJson(function (data) {
 			self.data = data;
@@ -102,11 +101,6 @@ L.Windmap = L.Class.extend({
 		$.getJSON(this.options.tileJson, function (data) {
 			callback(data);
 		});
-	},
-
-	// loading animation by sonic.js
-	createLoading: function () {
-		var loading = $("#loading");
 	},
 
 	showPointWind: function (e) {
