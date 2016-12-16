@@ -71,7 +71,7 @@ const styles = {
 }
 
 const timeToHideBottomBar = 3000
-const timeToUpdate = 1000
+const timeToUpdate = 500
 
 export default class TimeSlider extends React.Component {
 	state = {
