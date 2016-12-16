@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Sidebar } from 'semantic-ui-react'
+import Loader from './Loader'
 
 const styles = {
 	button: {
@@ -59,6 +60,13 @@ const styles = {
 		display: 'inline-block',
 		fontSize: 12,
 		textAlign: 'center',
+	},
+	loading: {
+		position: 'fixed',
+		display: 'block',
+		bottom: 72,
+		left: "50%",
+		marginLeft: 53,
 	}
 }
 
@@ -122,6 +130,9 @@ export default class TimeSlider extends React.Component {
 			this.state.time = this.dateToStr(this.props.now)
 		}
 
+		let loading = this.props.loading
+		let visible = this.state.visible
+
 		return (
 			<div style={{ display:'inline-block' }}>
 				<div style={styles.button} onClick={this.show}>
@@ -144,6 +155,15 @@ export default class TimeSlider extends React.Component {
 					{this.state.time}
 				</div>
 				
+				{(() => {
+					if (loading && visible){
+						return (
+							<div style={styles.loading}>
+								<Loader />
+							</div>
+						)
+					}
+				})()}
 			</div>
 		)
 	}

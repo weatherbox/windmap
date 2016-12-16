@@ -64,6 +64,7 @@ class WindmapUI extends React.Component {
 								end={state.end}
 								now={state.now}
 								interval={state.interval}
+								loading={state.loading}
 							/>
 						)
 					}
