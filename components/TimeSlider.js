@@ -1,5 +1,4 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 
 import TimeSliderTouch from './TimeSliderTouch'
 import TimeSliderPC from './TimeSliderPC'
@@ -33,13 +32,6 @@ export default class TimeSlider extends React.Component {
 
 		this.state.time = this.dateToStr(this.now)
 		this.touch = window.innerWidth < 800
-	}
-	
-	componentDidMount() {
-		if (!this.touch){
-			let pos = ReactDOM.findDOMNode(this.refs.timeSliderButton).getBoundingClientRect()
-			this.left = pos.right
-		}
 	}
 	
 	hide = () => {
@@ -104,7 +96,6 @@ export default class TimeSlider extends React.Component {
 						visible={this.state.visible}
 						time={this.state.time}
 						loading={this.props.loading}
-						left={this.left || 0}
 						start={this.start}
 						end={this.end}
 						now={this.now}
