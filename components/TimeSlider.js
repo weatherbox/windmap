@@ -15,7 +15,7 @@ const styles = {
 	},
 }
 
-const timeToHideBottomBar = 300000
+const timeToHideBottomBar = 3000
 const timeToUpdate = 500
 
 export default class TimeSlider extends React.Component {
@@ -58,6 +58,10 @@ export default class TimeSlider extends React.Component {
 	scroll = () => {
 		if (this._timer) clearTimeout(this._timer)
 		this._timer = setTimeout(this.hide, timeToHideBottomBar)
+	}
+
+	stopHideTimer = () => {
+		if (this._timer) clearTimeout(this._timer)
 	}
 	
 	change = (date) => {
@@ -105,7 +109,8 @@ export default class TimeSlider extends React.Component {
 						end={this.end}
 						now={this.now}
 						interval={this.props.interval}
-						onScroll={this.scroll}
+						startHideTimer={this.scroll}
+						stopHideTimer={this.stopHideTimer}
 						onChange={this.setTime} />
 				)
 

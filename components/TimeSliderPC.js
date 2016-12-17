@@ -115,10 +115,12 @@ export default class TimeSliderPC extends React.Component {
 	mouceover = (e) => {
 		this.setState({ showPopup: true })
 		this.hover(e)
+		this.props.stopHideTimer()
 	}
 
 	mouceout = () => {
 		this.setState({ showPopup: false })
+		this.props.startHideTimer()
 	}
 
 	render() {
