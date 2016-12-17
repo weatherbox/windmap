@@ -28,7 +28,7 @@
 			$(function() {
 				var map_id = 'tattii.77d8c7e1';
 				var token = 'pk.eyJ1IjoidGF0dGlpIiwiYSI6ImxKQ1hwOXcifQ.xGx4WsNt9GMqbZ0T5A7C8Q';
-				var mapboxTiles = new L.tileLayer('//{s}.tiles.mapbox.com/v4/' + map_id + '/{z}/{x}/{y}.png?access_token=' + token);
+				var mapboxTiles = new L.tileLayer('//{s}.tiles.mapbox.com/v4/' + map_id + '/{z}/{x}/{y}{r}.png?access_token=' + token);
 				var map = new L.map('map', {
 						center: [36.5, 137.6],
 						zoom: 5,
