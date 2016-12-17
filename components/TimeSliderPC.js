@@ -6,8 +6,9 @@ import Loader from './Loader'
 
 const styles = {
 	progressDiv: {
-		marginLeft: 12,
-		marginBottom: 4,
+		marginLeft: 20,
+		marginBottom: 2,
+		display: 'inline-block',
 	},
 	days: {
 		color: '#fff',
@@ -34,30 +35,38 @@ export default class TimeSliderPC extends React.Component {
 	}
 
 	render() {
+		let self = this
+
 		return (
 			<Sidebar
 				as='div'
 				animation='overlay'
 				direction='bottom'
-				visible={this.props.visible}
-				style={{ left: this.props.left }}>
-				<div style={ styles.progressDiv }>
-					<Progress
-						size='tiny'
-						color='blue'
-						className='time-slider-progress'
-						percent={50}
-						onClick={this.click}
-						onMouseOver={this.hover}
-						onMouseMove={this.hover}
-						style={{ width: 306, marginBottom: 4 }} />
+				className='time-slider-pc'
+				visible={this.props.visible}>
+				{(() => {
+					if (self.props.visible){
+						return (
+							<div style={ styles.progressDiv }>
+								<Progress
+									size='tiny'
+									color='blue'
+									className='time-slider-progress'
+									percent={50}
+									onClick={self.click}
+									onMouseOver={self.hover}
+									onMouseMove={self.hover}
+									style={{ width: 306, marginBottom: 4 }} />
 
-					<div style={ styles.days }>
-						<div style={Object.assign({}, styles.day, { width:72 })}>12/17</div>
-						<div style={Object.assign({}, styles.day, {})}>12/18</div>
-						<div style={Object.assign({}, styles.day, { width:90, border:'none' })}>12/19</div>
-					</div>
-				</div>
+								<div style={ styles.days }>
+									<div style={Object.assign({}, styles.day, { width:72 })}>12/17</div>
+									<div style={Object.assign({}, styles.day, {})}>12/18</div>
+									<div style={Object.assign({}, styles.day, { width:90, border:'none' })}>12/19</div>
+								</div>
+							</div>
+						)
+					}
+				})()}
 			</Sidebar>
 		)
 	}

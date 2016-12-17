@@ -12,7 +12,7 @@ const style = {
 	left: 0,
 	zIndex: 20,
 	display: 'inline-block',
-	padding: 10,
+	paddingLeft: 10,
 }
 
 class WindmapUI extends React.Component {

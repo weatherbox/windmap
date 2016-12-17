@@ -6,6 +6,7 @@ const style = {
 	color: '#fff',
 	fontSize: 16,
 	marginLeft: 12,
+	paddingBottom: 10,
 }
 
 const options = [

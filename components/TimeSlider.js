@@ -7,9 +7,11 @@ import TimeSliderPC from './TimeSliderPC'
 const styles = {
 	button: {
 		marginLeft: 12,
+		paddingBottom: 10,
 		zIndex: 20,
 		color: '#fff',
 		fontSize: 16,
+		display: 'inline-block',
 	},
 }
 
