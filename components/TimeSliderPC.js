@@ -52,6 +52,7 @@ export default class TimeSliderPC extends React.Component {
 		this.state.time = this.props.time
 		this.period = this.props.end - this.props.start
 		this.state.percent = (this.time - this.props.start) / (this.period) * 100
+		this.changeInterval(this.props.interval)
 
 		this.days = []
 		this._createDayList()
@@ -83,13 +84,19 @@ export default class TimeSliderPC extends React.Component {
 		return (date.getMonth() + 1) + '/' + ('0' + date.getDate()).slice(-2)
 	}
 
+	changeInterval = (interval) => {
+		this.interval = interval
+		if (interval == '3h') this.intervalHour = 3
+		if (interval == '1h') this.intervalHour = 1
+	}
+
 	componentDidMount() {
 		this.base = ReactDOM.findDOMNode(this.refs.timeSliderPC)
 	}
 
 	click = (e) => {
 		let baseLeft = this.base.getBoundingClientRect().left
-		let hour = Math.round((e.clientX - baseLeft - 20) / 6)
+		let hour = Math.round((e.clientX - baseLeft - 20) / (6 * this.intervalHour)) * this.intervalHour
 		let date = this.props.start + hour * HOUR
 
 		let percent = (date - this.props.start) / this.period * 100
@@ -100,7 +107,7 @@ export default class TimeSliderPC extends React.Component {
 
 	hover = (e) => {
 		let baseLeft = this.base.getBoundingClientRect().left
-		let hour = Math.round((e.clientX - baseLeft - 20) / 6)
+		let hour = Math.round((e.clientX - baseLeft - 20) / (6 * this.intervalHour)) * this.intervalHour
 
 		let date = new Date(this.props.start + hour * HOUR)
 		let day = this._getDayString(date)
@@ -124,6 +131,10 @@ export default class TimeSliderPC extends React.Component {
 	}
 
 	render() {
+		if (this.props.interval != this.interval){
+			this.changeInterval(this.props.interval)
+		}
+
 		let days = this.days
 		this.width = 6 * ((this.period) / HOUR)
 
