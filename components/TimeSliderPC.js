@@ -21,11 +21,26 @@ const styles = {
 		width: 144,
 		height: 12,
 		lineHeight: '10px',
-	}
+	},
+	popup: {
+		position: 'absolute',
+		top: 'auto',
+		left: 230,
+		width: 88,
+		bottom: 30,
+		padding: '4px 10px',
+		fontSize: 12,
+		fontWeight: 'normal',
+		lineHeight: '12px',
+	},
 }
 
 
 export default class TimeSliderPC extends React.Component {
+	state = {
+		hover: true,
+	}
+
 	click = (e) => {
 		console.log(e.clientX)
 	}
@@ -38,36 +53,43 @@ export default class TimeSliderPC extends React.Component {
 		let self = this
 
 		return (
-			<Sidebar
-				as='div'
-				animation='overlay'
-				direction='bottom'
-				className='time-slider-pc'
-				visible={this.props.visible}>
-				{(() => {
-					if (self.props.visible){
-						return (
-							<div style={ styles.progressDiv }>
-								<Progress
-									size='tiny'
-									color='blue'
-									className='time-slider-progress'
-									percent={50}
-									onClick={self.click}
-									onMouseOver={self.hover}
-									onMouseMove={self.hover}
-									style={{ width: 306, marginBottom: 4 }} />
+			<div style={{ display:'inline-block', verticalAlign:'bottom' }}>
+				<Sidebar
+					as='div'
+					animation='overlay'
+					direction='bottom'
+					className='time-slider-pc'
+					visible={this.props.visible}>
+					{(() => {
+						if (self.props.visible){
+							return (
+								<div style={ styles.progressDiv }>
+									<Progress
+										size='tiny'
+										color='blue'
+										className='time-slider-progress'
+										percent={50}
+										onClick={self.click}
+										onMouseOver={self.hover}
+										onMouseMove={self.hover}
+										style={{ width: 306, marginBottom: 4 }} />
 
-								<div style={ styles.days }>
-									<div style={Object.assign({}, styles.day, { width:72 })}>12/17</div>
-									<div style={Object.assign({}, styles.day, {})}>12/18</div>
-									<div style={Object.assign({}, styles.day, { width:90, border:'none' })}>12/19</div>
+									<div style={ styles.days }>
+										<div style={Object.assign({}, styles.day, { width:72 })}>12/17</div>
+										<div style={Object.assign({}, styles.day, {})}>12/18</div>
+										<div style={Object.assign({}, styles.day, { width:90, border:'none' })}>12/19</div>
+									</div>
+
 								</div>
-							</div>
-						)
-					}
-				})()}
-			</Sidebar>
+							)
+						}
+					})()}
+				</Sidebar>
+
+				<div className={'ui popup transition top center ' + ((self.props.visible && self.state.hover) ? "visible" : "")} style={styles.popup}>
+					{self.props.time}
+				</div>
+			</div>
 		)
 	}
 }

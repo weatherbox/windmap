@@ -11,6 +11,10 @@
 	vertical-align: bottom;
 }
 
+.ui.progress.time-slider-progress {
+	background: rgba(255, 255, 255, 0.2);
+}
+
 .loader-dot .dot {
 	width: 10px;
 	height: 10px;
