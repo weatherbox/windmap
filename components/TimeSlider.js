@@ -12,6 +12,7 @@ const styles = {
 		color: '#fff',
 		fontSize: 16,
 		display: 'inline-block',
+		cursor: 'pointer',
 	},
 }
 
