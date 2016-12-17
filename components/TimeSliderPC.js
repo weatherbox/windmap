@@ -8,7 +8,7 @@ const styles = {
 	progressDiv: {
 		marginLeft: 20,
 		marginBottom: 2,
-		display: 'inline-block',
+		display: 'none',
 	},
 	days: {
 		color: '#fff',
@@ -41,6 +41,7 @@ const HOUR = 3600 * 1000
 export default class TimeSliderPC extends React.Component {
 	state = {
 		showPopup: false,
+		displaySlider: false,
 		percent: 0,
 		time: '01/01 00:00',
 	}
@@ -94,6 +95,12 @@ export default class TimeSliderPC extends React.Component {
 		this.base = ReactDOM.findDOMNode(this.refs.timeSliderPC)
 	}
 
+	componentDidUpdate(prevProps, prevState) {
+		if (!prevProps.visible && prevState.displaySlider){
+			this.setState({ displaySlider: false })
+		}
+	}
+
 	click = (e) => {
 		let baseLeft = this.base.getBoundingClientRect().left
 		let hour = Math.round((e.clientX - baseLeft - 20) / (6 * this.intervalHour)) * this.intervalHour
@@ -135,11 +142,16 @@ export default class TimeSliderPC extends React.Component {
 			this.changeInterval(this.props.interval)
 		}
 
+		if (this.props.visible) this.state.displaySlider = true
+		let styleProgressDiv = Object.assign({}, styles.progressDiv, {
+			display: (this.state.displaySlider) ? 'inline-block' : 'none'
+		})
+
 		let days = this.days
 		this.width = 6 * ((this.period) / HOUR)
 
 		let progress = (
-			<div style={ styles.progressDiv }
+			<div style={styleProgressDiv}
 				onClick={this.click}
 				onMouseOver={this.mouceover}
 				onMouseMove={this.hover}
@@ -181,7 +193,7 @@ export default class TimeSliderPC extends React.Component {
 					className='time-slider-pc'
 					ref='timeSliderPC'
 					visible={this.props.visible}>
-					{ this.props.visible && progress }
+					{progress}
 				</Sidebar>
 
 				<div className={'ui popup transition top center ' + ((this.props.visible && this.state.showPopup) ? "visible" : "")} style={stylePopup}>
