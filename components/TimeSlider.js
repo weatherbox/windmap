@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import TimeSliderTouch from './TimeSliderTouch'
+import TimeSliderPC from './TimeSliderPC'
 
 const styles = {
 	button: {
@@ -72,10 +73,10 @@ export default class TimeSlider extends React.Component {
 			this.state.time = this.dateToStr(this.props.now)
 		}
 
-
+		let width = window.innerWidth
 		let slider
 						
-		if (1){
+		if (width < 800){
 				slider = (
 					<TimeSliderTouch
 						visible={this.state.visible}
@@ -88,6 +89,20 @@ export default class TimeSlider extends React.Component {
 						onScroll={this.scroll}
 						onChange={this.change} />
 				)
+		} else {
+				slider = (
+					<TimeSliderPC
+						visible={this.state.visible}
+						time={this.state.time}
+						loading={this.props.loading}
+						start={this.start}
+						end={this.end}
+						now={this.now}
+						interval={this.props.interval}
+						onScroll={this.scroll}
+						onChange={this.change} />
+				)
+
 		}
 
 		return (
