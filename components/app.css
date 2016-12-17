@@ -1,0 +1,62 @@
+.level-dropdown .description {
+	font-size: 10px;
+}
+
+.ui.bottom.sidebar.time-slider-pc {
+	display: inline-block;
+	width: auto !important;
+	position: relative;
+	margin: 0;
+	padding: 0;
+	vertical-align: bottom;
+}
+
+.ui.progress.time-slider-progress {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.ui.progress.time-slider-progress .bar {
+	min-width: 6px;
+}
+
+.loader-dot .dot {
+	width: 10px;
+	height: 10px;
+	background: #3ac;
+	border-radius: 100%;
+	display: inline-block;
+}
+
+.loader-dot .dot:nth-child(1) {
+	animation: slide 1s infinite;
+	animation-delay: -0.3s;
+	background: #32aacc;
+}
+
+.loader-dot .dot:nth-child(2) {
+	animation: slide 1s infinite;
+	animation-delay: -0.2s;
+	background: #64aacc;
+}
+
+.loader-dot .dot:nth-child(3) {
+	animation: slide 1s infinite;
+	animation-delay: -0.1s;
+	background: #96aacc;
+}
+
+
+@keyframes slide {
+	0% {
+		transform: scale(1);
+	}
+
+	50% {
+		opacity: 0.3;
+		transform: scale(1.5);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
