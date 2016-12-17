@@ -40,14 +40,16 @@ const HOUR = 3600 * 1000
 
 export default class TimeSliderPC extends React.Component {
 	state = {
-		hover: true,
+		showPopup: false
 	}
 
 	constructor(props) {
 		super(props)
 
 		this.time = this.props.now
-		this.percent = (this.time - this.props.start) / (this.props.end - this.props.start) * 100
+		this.state.time = this.props.time
+		this.period = this.props.end - this.props.start
+		this.percent = (this.time - this.props.start) / (this.period) * 100
 
 		this.days = []
 		this._createDayList()
@@ -79,28 +81,56 @@ export default class TimeSliderPC extends React.Component {
 		return (date.getMonth() + 1) + '/' + ('0' + date.getDate()).slice(-2)
 	}
 
+	componentDidMount() {
+		this.base = ReactDOM.findDOMNode(this.refs.timeSliderPC)
+	}
+
+	_getBarPosition = (x) => {
+		return x - this.base.getBoundingClientRect().left - 20
+	}
+
 	click = (e) => {
 		console.log(e.clientX)
 	}
 
 	hover = (e) => {
-		console.log(e.clientX)
+		let baseLeft = this.base.getBoundingClientRect().left
+		let hour = Math.round((e.clientX - baseLeft - 20) / 6)
+
+		let date = new Date(this.props.start + hour * HOUR)
+		let day = this._getDayString(date)
+		let hh = ('0' + date.getHours()).slice(-2)
+
+		let popupLeft = baseLeft + 20 + 6 * hour - 44
+
+		let time = day + ' ' + hh + ':00'
+		if (time != this.state.time) this.setState({ time, popupLeft })
+	}
+
+	mouceover = (e) => {
+		this.setState({ showPopup: true })
+		this.hover(e)
+	}
+
+	mouceout = () => {
+		this.setState({ showPopup: false })
 	}
 
 	render() {
 		let days = this.days
-		this.width = 6 * ((this.props.end - this.props.start) / HOUR)
+		this.width = 6 * ((this.period) / HOUR)
 
 		let progress = (
-			<div style={ styles.progressDiv }>
+			<div style={ styles.progressDiv }
+				onClick={this.click}
+				onMouseOver={this.mouceover}
+				onMouseMove={this.hover}
+				onMouseOut={this.mouceout}>
 				<Progress
 					size='tiny'
 					color='blue'
 					className='time-slider-progress'
 					percent={this.percent}
-					onClick={this.click}
-					onMouseOver={this.hover}
-					onMouseMove={this.hover}
 					style={{ width: this.width, marginBottom: 4 }} />
 
 				<div style={ styles.days }>
@@ -122,6 +152,8 @@ export default class TimeSliderPC extends React.Component {
 			</div>
 		)
 
+		let stylePopup = Object.assign({}, styles.popup, { left: this.state.popupLeft })
+
 		return (
 			<div style={{ display:'inline-block', verticalAlign:'bottom' }}>
 				<Sidebar
@@ -129,12 +161,13 @@ export default class TimeSliderPC extends React.Component {
 					animation='overlay'
 					direction='bottom'
 					className='time-slider-pc'
+					ref='timeSliderPC'
 					visible={this.props.visible}>
 					{ this.props.visible && progress }
 				</Sidebar>
 
-				<div className={'ui popup transition top center ' + ((this.props.visible && this.state.hover) ? "visible" : "")} style={styles.popup}>
-					{this.props.time}
+				<div className={'ui popup transition top center ' + ((this.props.visible && this.state.showPopup) ? "visible" : "")} style={stylePopup}>
+					{this.state.time}
 				</div>
 			</div>
 		)
