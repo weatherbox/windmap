@@ -1,10 +1,10 @@
 import React from 'react'
 import { render } from 'react-dom'
 
-import LevelDropdown from './src/LevelDropdown'
-import ElementDropdown from './src/ElementDropdown'
-import TimeSlider from './src/TimeSlider'
-import Loader from './src/Loader'
+import LevelDropdown from './LevelDropdown'
+import ElementDropdown from './ElementDropdown'
+import TimeSlider from './TimeSlider'
+import Loader from './Loader'
 
 const style = {
 	position: 'absolute',

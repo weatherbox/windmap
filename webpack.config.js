@@ -1,7 +1,7 @@
 module.exports = {
   context: __dirname + '/',
   entry: {
-    'bundle': './windmap-ui'
+    'bundle': './components/windmap-ui'
   },
   output: {
     path: __dirname,
