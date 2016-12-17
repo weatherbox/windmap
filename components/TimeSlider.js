@@ -70,6 +70,11 @@ export default class TimeSlider extends React.Component {
 		}, timeToUpdate);
 	}
 
+	setTime = (date) => {
+		this.setState({ time: this.dateToStr(date) })
+		window.windmap.setTime(date)
+	}
+
 	render() {
 		if (this.props.now != this.now){
 			this.now = this.props.now
@@ -101,7 +106,7 @@ export default class TimeSlider extends React.Component {
 						now={this.now}
 						interval={this.props.interval}
 						onScroll={this.scroll}
-						onChange={this.change} />
+						onChange={this.setTime} />
 				)
 
 		}

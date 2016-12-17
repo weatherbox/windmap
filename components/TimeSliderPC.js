@@ -40,7 +40,9 @@ const HOUR = 3600 * 1000
 
 export default class TimeSliderPC extends React.Component {
 	state = {
-		showPopup: false
+		showPopup: false,
+		percent: 0,
+		time: '01/01 00:00',
 	}
 
 	constructor(props) {
@@ -49,7 +51,7 @@ export default class TimeSliderPC extends React.Component {
 		this.time = this.props.now
 		this.state.time = this.props.time
 		this.period = this.props.end - this.props.start
-		this.percent = (this.time - this.props.start) / (this.period) * 100
+		this.state.percent = (this.time - this.props.start) / (this.period) * 100
 
 		this.days = []
 		this._createDayList()
@@ -85,12 +87,15 @@ export default class TimeSliderPC extends React.Component {
 		this.base = ReactDOM.findDOMNode(this.refs.timeSliderPC)
 	}
 
-	_getBarPosition = (x) => {
-		return x - this.base.getBoundingClientRect().left - 20
-	}
-
 	click = (e) => {
-		console.log(e.clientX)
+		let baseLeft = this.base.getBoundingClientRect().left
+		let hour = Math.round((e.clientX - baseLeft - 20) / 6)
+		let date = this.props.start + hour * HOUR
+
+		let percent = (date - this.props.start) / this.period * 100
+		if (percent != this.state.percent) this.setState({ percent })
+
+		this.props.onChange(date)
 	}
 
 	hover = (e) => {
@@ -102,8 +107,8 @@ export default class TimeSliderPC extends React.Component {
 		let hh = ('0' + date.getHours()).slice(-2)
 
 		let popupLeft = baseLeft + 20 + 6 * hour - 44
-
 		let time = day + ' ' + hh + ':00'
+
 		if (time != this.state.time) this.setState({ time, popupLeft })
 	}
 
@@ -130,7 +135,7 @@ export default class TimeSliderPC extends React.Component {
 					size='tiny'
 					color='blue'
 					className='time-slider-progress'
-					percent={this.percent}
+					percent={this.state.percent}
 					style={{ width: this.width, marginBottom: 4 }} />
 
 				<div style={ styles.days }>

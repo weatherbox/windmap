@@ -15,6 +15,10 @@
 	background: rgba(255, 255, 255, 0.2);
 }
 
+.ui.progress.time-slider-progress .bar {
+	min-width: 6px;
+}
+
 .loader-dot .dot {
 	width: 10px;
 	height: 10px;
