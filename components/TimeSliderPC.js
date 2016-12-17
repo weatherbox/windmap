@@ -4,6 +4,7 @@ import { Sidebar, Progress } from 'semantic-ui-react'
 
 import Loader from './Loader'
 
+const DayBorder = '1px solid rgba(211, 211, 211, 0.7)'
 const styles = {
 	progressDiv: {
 		marginLeft: 20,
@@ -17,7 +18,7 @@ const styles = {
 	day: {
 		display: 'inline-block',
 		textAlign: 'center',
-		borderRight: '1px solid rgba(211, 211, 211, 0.7)',
+		borderRight: DayBorder,
 		width: 144,
 		height: 12,
 		lineHeight: '10px',
@@ -167,11 +168,18 @@ export default class TimeSliderPC extends React.Component {
 					{days.map((d, i) => {
 						let style = Object.assign({}, styles.day)
 						let last = (i == days.length - 1)
-						let width = 6 * d.hours
-						if (!last) width -= 1
-						style.width = 6 * d.hours - last
-						if (last) style.borderRight = 'none'
 						let day = (d.hours > 3) ? d.day : ''
+
+						style.width = 6 * d.hours - 1
+
+						if (last && d.hours != 24) {
+							style.borderRight = 'none'
+							style.width += 1
+						}
+						if (i == 0 && d.hours == 24) {
+							style.borderLeft = DayBorder
+							style.width -= 1
+						}
 
 						return (
 							<div style={style} key={i}>{day}</div>
