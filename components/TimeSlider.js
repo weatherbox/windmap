@@ -9,11 +9,11 @@ const styles = {
 		marginLeft: 12,
 		zIndex: 20,
 		color: '#fff',
-		fontSize: 16
+		fontSize: 16,
 	},
 }
 
-const timeToHideBottomBar = 3000
+const timeToHideBottomBar = 300000
 const timeToUpdate = 500
 
 export default class TimeSlider extends React.Component {
@@ -29,6 +29,14 @@ export default class TimeSlider extends React.Component {
 		this.now = props.now
 
 		this.state.time = this.dateToStr(this.now)
+		this.touch = window.innerWidth < 800
+	}
+	
+	componentDidMount() {
+		if (!this.touch){
+			let pos = ReactDOM.findDOMNode(this.refs.timeSliderButton).getBoundingClientRect()
+			this.left = pos.right
+		}
 	}
 	
 	hide = () => {
@@ -73,10 +81,8 @@ export default class TimeSlider extends React.Component {
 			this.state.time = this.dateToStr(this.props.now)
 		}
 
-		let width = window.innerWidth
-		let slider
-						
-		if (width < 800){
+		let slider	
+		if (this.touch){
 				slider = (
 					<TimeSliderTouch
 						visible={this.state.visible}
@@ -95,6 +101,7 @@ export default class TimeSlider extends React.Component {
 						visible={this.state.visible}
 						time={this.state.time}
 						loading={this.props.loading}
+						left={this.left || 0}
 						start={this.start}
 						end={this.end}
 						now={this.now}
@@ -107,7 +114,7 @@ export default class TimeSlider extends React.Component {
 
 		return (
 			<div style={{ display:'inline-block' }}>
-				<div style={styles.button} onClick={this.show}>
+				<div style={styles.button} onClick={this.show} ref='timeSliderButton'>
 					{this.state.time}
 				</div>
 
