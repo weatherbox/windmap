@@ -2,6 +2,23 @@
 	font-size: 10px;
 }
 
+.ui.bottom.sidebar.time-slider-pc {
+	display: inline-block;
+	width: auto !important;
+	position: relative;
+	margin: 0;
+	padding: 0;
+	vertical-align: bottom;
+}
+
+.ui.progress.time-slider-progress {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.ui.progress.time-slider-progress .bar {
+	min-width: 6px;
+}
+
 .loader-dot .dot {
 	width: 10px;
 	height: 10px;

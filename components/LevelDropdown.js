@@ -4,7 +4,8 @@ import { Dropdown } from 'semantic-ui-react'
 const style = {
 	zIndex: 20,
 	color: '#fff',
-	fontSize: 16
+	fontSize: 16,
+	paddingBottom: 10,
 }
 
 const options = [
