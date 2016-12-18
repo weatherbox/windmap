@@ -62,28 +62,27 @@ export default class TimeSliderPC extends React.Component {
 
 	_createDayList = () => {
 		let startDate = new Date(this.props.start)
+		let endDate = new Date(this.props.end)
+
 		let hours = 24 - startDate.getHours()
 		this.days.push({
 			hours: hours,
 			day: this._getDayString(startDate)
 		})
 
-		for (var d = this.props.start + hours * HOUR; d < this.props.end; d += 24 * HOUR){
+		for (var d = this.props.start + hours * HOUR; d < this.props.end - endDate.getHours() * HOUR; d += 24 * HOUR){
 			this.days.push({
 				hours: 24,
 				day: this._getDayString(new Date(d))
 			})
 		}
 
-		let endDate = new Date(this.props.end)
 		if (endDate.getHours() != 0){
 			this.days.push({
 				hours: endDate.getHours(),
 				day: this._getDayString(endDate)
 			})
 		}
-
-		console.log(this.days)
 	}
 
 	_getDayString = (date) => {
