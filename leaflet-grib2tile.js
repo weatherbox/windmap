@@ -13,7 +13,7 @@ L.Grib2tile = L.GridLayer.extend({
 	options: {
 		bounds: new L.latLngBounds([22.4, 120.0], [47.6, 150.0]),
 		tileZoom: [1, 2],
-		tileSize: new L.Point(121, 127)
+		tileSize: new L.Point(241, 253)
 	},
 
 	initialize: function (url, options) {
