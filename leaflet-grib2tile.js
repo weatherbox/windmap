@@ -82,6 +82,36 @@ L.Grib2tile = L.GridLayer.extend({
 			v(x, y), v(x+1, y), v(x, y+1), v(x+1, y+1)
 		);
 	},
+	
+	v: function (x, y) {
+		var n = this._fnx * y + x;
+		return [ this._ufield[n], this._vfield[n] ];
+	},
+
+	getVectorXY: function (X, Y) {
+		var x = X[0], y = Y[0], dx = X[1], dy = Y[1];
+		if (x == null || y == null) return [ null, null ];
+		
+		return this._bilinearInterpolateVector(
+			dx, dy,
+			this.v(x, y), this.v(x+1, y), this.v(x, y+1), this.v(x+1, y+1)
+		);
+	},
+
+	getDx: function (lng) {
+		if (lng < this._fieldLatLngBounds.getWest() || lng > this._fieldLatLngBounds.getEast()) return [ null, null ];
+		var x = Math.floor((lng - this._p0.lng) / this._dlng);
+		var dx = (lng - (this._p0.lng + this._dlng * x)) / this._dlng;
+		return [ x, dx ];
+	},
+
+	getDy: function (lat) {
+		if (lat < this._fieldLatLngBounds.getSouth() || lat > this._fieldLatLngBounds.getNorth()) return [ null, null ];
+		var y = Math.floor((this._p0.lat - lat) / this._dlat);
+		var dy = ((this._p0.lat - this._dlat * y) - lat) / this._dlat;
+		return [ y, dy ];
+	},
+
 
 	_bilinearInterpolateVector: function (x, y, p00, p10, p01, p11) {
 		var rx = (1 - x);
