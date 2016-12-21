@@ -90,7 +90,7 @@ L.Grib2tile = L.GridLayer.extend({
 
 	getVectorXY: function (X, Y) {
 		var x = X[0], y = Y[0], dx = X[1], dy = Y[1];
-		if (!x || !y) return [ null, null ];
+		if (x == null || y == null) return [ null, null ];
 		
 		return this._bilinearInterpolateVector(
 			dx, dy,
