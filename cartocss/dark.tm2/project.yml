@@ -50,4 +50,5 @@ styles:
   - roads.mss
   - terrain.mss
   - water.mss
+  - labels.mss
 template: ''
