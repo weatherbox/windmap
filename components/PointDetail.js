@@ -1,12 +1,23 @@
 import React from 'react'
 
-import { Sidebar } from 'semantic-ui-react'
+import { Sidebar, Icon } from 'semantic-ui-react'
 import MeteogramSky from './meteogram/src/MeteogramSky'
 
+const styles = {
+	close: {
+		position: 'absolute',
+		top: 4,
+		right: 4
+	}
+}
 
 export default class PointDetail extends React.Component {
 	render() {
-		console.log(this.props)
+		let meteogram
+		if (this.props.lat && this.props.lon){
+			meteogram = (<MeteogramSky lat={this.props.lat} lon={this.props.lon} />)
+		}
+
 		return (
 			<Sidebar
 				as='div'
@@ -14,7 +25,10 @@ export default class PointDetail extends React.Component {
 				direction='bottom'
 				visible={this.props.visible}
 				style={{ background:'#fff' }}>
-				<MeteogramSky lat={this.props.lat} lon={this.props.lon} />
+				<Icon name='remove'
+					style={styles.close}
+					onClick={this.props.close}/>
+				{meteogram}
 			</Sidebar>
 		)
 	}

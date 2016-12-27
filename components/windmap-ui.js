@@ -23,7 +23,7 @@ class WindmapUI extends React.Component {
 		level: 'surface',
 		loading: true,
 		showPointDetail: false,
-		point: { lat: 0, lon: 0 }
+		point: { lat: null, lon: null }
 	}
 
 	constructor(props) {
@@ -55,6 +55,10 @@ class WindmapUI extends React.Component {
 		}
 	}
 
+	closePointDetail = () => {
+		this.setState({ showPointDetail: false })
+	}
+
 	render() {
 		let state = this.state
 
@@ -82,17 +86,12 @@ class WindmapUI extends React.Component {
 						)
 					}
 				})()}
-				{(() => {
-					if (state.showPointDetail){
-						return (
-							<PointDetail
-								visible={state.showPointDetail}
-								lat={state.point.lat}
-								lon={state.point.lon}
-							/>
-						)
-					}
-				})()}
+				<PointDetail
+					visible={state.showPointDetail}
+					lat={state.point.lat}
+					lon={state.point.lon}
+					close={this.closePointDetail}
+				/>
 			</div>
 		)
 	}
