@@ -60,3 +60,55 @@
 		transform: scale(1);
 	}
 }
+
+.leaflet-point-icon {
+	background: transparent;
+}
+
+.point-flag {
+	position: relative;
+	height: 60px;
+	background: transparent;
+}
+
+.flag-text {
+	position: absolute;
+	top: 2px;
+	left: 6px;
+	color: #fff;
+	font-size: 14px;
+	white-space: nowrap;
+	text-shadow: 0 0 4px rgba(0,0,0,0.8);
+}
+
+.flag-pole {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 60px;
+	border-left: 1px solid #fff;
+}
+
+.flag-draggable-square {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 24px;
+	height: 24px;
+	margin-left: -12px;
+	margin-bottom: -12px;
+}
+
+.flag-anchor {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 6px;
+	height: 6px;
+	margin-left: -3px;
+	margin-bottom: -3px;
+	border-radius: 100%;
+	background: #fff;
+	box-shadow: 0 0 4px 0 rgba(0,0,0,0.8);
+}
+
