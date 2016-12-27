@@ -82,11 +82,15 @@ L.Windmap = L.Class.extend({
 	},
 
 	_initStreamline: function (){
+		var self = this;
 		this._initGrib2tile();
 
 		this._streamline = new L.Streamline(this._grib2tile, {
 			onUpdate: window.windmapUI.showLoading,
-			onUpdated: window.windmapUI.hideLoading
+			onUpdated: function () {
+				window.windmapUI.hideLoading();
+				if (self._pointMarker) self.updatePointWind();
+			}
 		});
 		this._streamline.addTo(this._map);
 	},
@@ -120,13 +124,13 @@ L.Windmap = L.Class.extend({
 					{ icon:icon, draggable:true }
 				).addTo(this._map);
 
-				this._pointMarker.on('dragend', this.dragPointWind, this);
+				this._pointMarker.on('dragend', this.updatePointWind, this);
 				this._pointMarker.on('click', this.showPointDetail, this);
 			}
 		}
 	},
 
-	dragPointWind: function () {
+	updatePointWind: function () {
 		var latlng = this._pointMarker.getLatLng();
 		var v = this._grib2tile.getVector(latlng);
 		if (v[0] != null){
