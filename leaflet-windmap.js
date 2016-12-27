@@ -107,23 +107,7 @@ L.Windmap = L.Class.extend({
 		var latlng = e.latlng;
 		var v = this._grib2tile.getVector(latlng);
 		if (v[0] != null){
-			var speed = Math.sqrt(v[0]*v[0] + v[1]*v[1]);
-			var ang = Math.acos(v[1]/speed) / Math.PI * 180;
-			if (v[0] < 0) ang = 360 - ang;
-
-			console.log(ang, speed);
-			var text = Math.round(ang) + "° "  + speed.toFixed(1) + "m/s";
-			var icon = L.divIcon({
-				iconSize: [10, 60],
-				iconAnchor: [0, 60],
-				className: 'leaflet-point-icon',
-				html: '<div class="point-flag">' +
-					'<div class="flag-text">' + text + '</div>' +
-					'<div class="flag-pole"></div>' +
-					'<div class="flag-draggable-square"></div>' +
-					'<div class="flag-anchor"></div>' +
-					'</div>'
-			});
+			var icon = this._createPointIcon(v);
 
 			if (this._pointMarker) {
 				this._pointMarker.setLatLng(latlng);
@@ -134,8 +118,38 @@ L.Windmap = L.Class.extend({
 					latlng, 
 					{ icon:icon, draggable:true }
 				).addTo(this._map);
+
+				this._pointMarker.on('dragend', this.dragPointWind, this);
 			}
 		}
+	},
+
+	dragPointWind: function () {
+		var latlng = this._pointMarker.getLatLng();
+		var v = this._grib2tile.getVector(latlng);
+		if (v[0] != null){
+			var icon = this._createPointIcon(v);
+			this._pointMarker.setIcon(icon);
+		}
+	},
+
+	_createPointIcon: function (v) {
+		var speed = Math.sqrt(v[0]*v[0] + v[1]*v[1]);
+		var ang = Math.acos(v[1] / speed) / Math.PI * 180 + 180;
+		if (v[0] < 0) ang = 360 - ang;
+
+		var text = Math.round(ang) + "° "  + speed.toFixed(1) + "m/s";
+		return new L.divIcon({
+			iconSize: [10, 60],
+			iconAnchor: [0, 60],
+			className: 'leaflet-point-icon',
+			html: '<div class="point-flag">' +
+				'<div class="flag-text">' + text + '</div>' +
+				'<div class="flag-pole"></div>' +
+				'<div class="flag-draggable-square"></div>' +
+				'<div class="flag-anchor"></div>' +
+				'</div>'
+		});
 	},
 	
 	hidePointWind: function() {

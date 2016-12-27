@@ -76,7 +76,8 @@
 	top: 2px;
 	left: 6px;
 	color: #fff;
-	font-size: 14px;
+	font-size: 16px;
+	font-weight: 300;
 	white-space: nowrap;
 	text-shadow: 0 0 4px rgba(0,0,0,0.8);
 }
@@ -103,8 +104,8 @@
 	position: absolute;
 	bottom: 0;
 	left: 0;
-	width: 6px;
-	height: 6px;
+	width: 7px;
+	height: 7px;
 	margin-left: -3px;
 	margin-bottom: -3px;
 	border-radius: 100%;
