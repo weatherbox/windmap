@@ -4,3 +4,6 @@
 [submodule "grib2tiles"]
 	path = grib2tiles
 	url = git@github.com:weatherbox/grib2tiles.git
+[submodule "components/meteogram"]
+	path = components/meteogram
+	url = https://github.com/weatherbox/meteogram.git
