@@ -104,6 +104,8 @@ L.Windmap = L.Class.extend({
 	},
 
 	showPointWind: function (e) {
+		if (this._flagClicked) return;
+
 		var latlng = e.latlng;
 		var v = this._grib2tile.getVector(latlng);
 		if (v[0] != null){
@@ -121,6 +123,7 @@ L.Windmap = L.Class.extend({
 
 				this._pointMarker.on('dragend', this.dragPointWind, this);
 			}
+			this._setFlagClick();
 		}
 	},
 
@@ -130,6 +133,7 @@ L.Windmap = L.Class.extend({
 		if (v[0] != null){
 			var icon = this._createPointIcon(v);
 			this._pointMarker.setIcon(icon);
+			this._setFlagClick();
 		}
 	},
 
@@ -144,11 +148,22 @@ L.Windmap = L.Class.extend({
 			iconAnchor: [0, 60],
 			className: 'leaflet-point-icon',
 			html: '<div class="point-flag">' +
-				'<div class="flag-text">' + text + '</div>' +
+				'<a class="flag-text" id="flag-text">' + text + '</a>' +
 				'<div class="flag-pole"></div>' +
 				'<div class="flag-draggable-square"></div>' +
 				'<div class="flag-anchor"></div>' +
 				'</div>'
+		});
+	},
+
+	_setFlagClick: function (){
+		var flag = L.DomUtil.get('flag-text');
+		var self = this;
+		L.DomEvent.on(flag, 'click', function (e){
+			console.log('click');
+			self._flagClicked = true;
+			setTimeout(function(){ self._flagClicked = false; }, 500);
+			return false;
 		});
 	},
 	

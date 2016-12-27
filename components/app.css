@@ -63,22 +63,25 @@
 
 .leaflet-point-icon {
 	background: transparent;
+	outline: none;
 }
 
 .point-flag {
 	position: relative;
 	height: 60px;
 	background: transparent;
+	user-select: none;
 }
 
 .flag-text {
 	position: absolute;
 	top: 2px;
 	left: 6px;
-	color: #fff;
+	color: #fff !important;
 	font-size: 16px;
 	font-weight: 300;
 	white-space: nowrap;
+	text-decoration: none;
 	text-shadow: 0 0 4px rgba(0,0,0,0.8);
 }
 
