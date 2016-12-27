@@ -104,8 +104,6 @@ L.Windmap = L.Class.extend({
 	},
 
 	showPointWind: function (e) {
-		if (this._flagClicked) return;
-
 		var latlng = e.latlng;
 		var v = this._grib2tile.getVector(latlng);
 		if (v[0] != null){
@@ -114,6 +112,7 @@ L.Windmap = L.Class.extend({
 			if (this._pointMarker) {
 				this._pointMarker.setLatLng(latlng);
 				this._pointMarker.setIcon(icon);
+				window.windmapUI.changePointDetail(latlng.lat, latlng.lng);
 
 			}else{
 				this._pointMarker = L.marker(
@@ -122,8 +121,8 @@ L.Windmap = L.Class.extend({
 				).addTo(this._map);
 
 				this._pointMarker.on('dragend', this.dragPointWind, this);
+				this._pointMarker.on('click', this.showPointDetail, this);
 			}
-			this._setFlagClick();
 		}
 	},
 
@@ -133,7 +132,7 @@ L.Windmap = L.Class.extend({
 		if (v[0] != null){
 			var icon = this._createPointIcon(v);
 			this._pointMarker.setIcon(icon);
-			this._setFlagClick();
+			window.windmapUI.changePointDetail(latlng.lat, latlng.lng);
 		}
 	},
 
@@ -156,17 +155,9 @@ L.Windmap = L.Class.extend({
 		});
 	},
 
-	_setFlagClick: function (){
-		var flag = L.DomUtil.get('flag-text');
-		var self = this;
-		L.DomEvent.on(flag, 'click', function (e){
-			var p = self._pointMarker.getLatLng();
-			window.windmapUI.showPointDetail(p.lat, p.lng);
-
-			self._flagClicked = true;
-			setTimeout(function(){ self._flagClicked = false; }, 500);
-			return false;
-		});
+	showPointDetail: function (){
+		var p = this._pointMarker.getLatLng();
+		window.windmapUI.showPointDetail(p.lat, p.lng);
 	},
 	
 	hidePointWind: function() {

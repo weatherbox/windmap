@@ -83,6 +83,7 @@
 	white-space: nowrap;
 	text-decoration: none;
 	text-shadow: 0 0 4px rgba(0,0,0,0.8);
+	cursor: pointer;
 }
 
 .flag-pole {

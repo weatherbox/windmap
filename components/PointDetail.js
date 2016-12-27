@@ -7,7 +7,8 @@ const styles = {
 	close: {
 		position: 'absolute',
 		top: 4,
-		right: 4
+		right: 4,
+		zIndex: 1000,
 	}
 }
 
@@ -24,7 +25,7 @@ export default class PointDetail extends React.Component {
 				animation='overlay'
 				direction='bottom'
 				visible={this.props.visible}
-				style={{ background:'#fff' }}>
+				style={{ background:'#fff', height: 304 }}>
 				<Icon name='remove'
 					style={styles.close}
 					onClick={this.props.close}/>

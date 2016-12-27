@@ -52,6 +52,11 @@ class WindmapUI extends React.Component {
 			showPointDetail: function (lat, lon){
 				self.setState({ showPointDetail: true, point: { lat, lon } })
 			},
+			changePointDetail: function (lat, lon){
+				if (self.state.showPointDetail){
+					self.setState({ point: { lat, lon } })
+				}
+			},
 		}
 	}
 
