@@ -6,17 +6,19 @@ import MeteogramSky from './meteogram/src/MeteogramSky'
 const styles = {
 	close: {
 		position: 'absolute',
-		top: 4,
-		right: 4,
+		top: 6,
+		right: 6,
 		zIndex: 1000,
 	}
 }
 
 export default class PointDetail extends React.Component {
 	render() {
+		let { lat, lon } = this.props
+
 		let meteogram
-		if (this.props.lat && this.props.lon){
-			meteogram = (<MeteogramSky lat={this.props.lat} lon={this.props.lon} />)
+		if (lat && lon){
+			meteogram = (<MeteogramSky lat={lat} lon={lon} />)
 		}
 
 		return (
@@ -25,7 +27,7 @@ export default class PointDetail extends React.Component {
 				animation='overlay'
 				direction='bottom'
 				visible={this.props.visible}
-				style={{ background:'#fff', height: 304 }}>
+				style={{ background:'#fff' }}>
 				<Icon name='remove'
 					style={styles.close}
 					onClick={this.props.close}/>
