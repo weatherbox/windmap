@@ -5,6 +5,7 @@ import LevelDropdown from './LevelDropdown'
 import ElementDropdown from './ElementDropdown'
 import TimeSlider from './TimeSlider'
 import Loader from './Loader'
+import PointDetail from './PointDetail'
 
 const style = {
 	position: 'absolute',
@@ -21,6 +22,8 @@ class WindmapUI extends React.Component {
 		interval: '1h',
 		level: 'surface',
 		loading: true,
+		showPointDetail: false,
+		point: { lat: 0, lon: 0 }
 	}
 
 	constructor(props) {
@@ -45,6 +48,9 @@ class WindmapUI extends React.Component {
 			},
 			hideLoading: function (){
 				self.setState({ loading: false })
+			},
+			showPointDetail: function (lat, lon){
+				self.setState({ showPointDetail: true, point: { lat, lon } })
 			},
 		}
 	}
@@ -73,6 +79,17 @@ class WindmapUI extends React.Component {
 					if (state.loading){
 						return (
 							<Loader />
+						)
+					}
+				})()}
+				{(() => {
+					if (state.showPointDetail){
+						return (
+							<PointDetail
+								visible={state.showPointDetail}
+								lat={state.point.lat}
+								lon={state.point.lon}
+							/>
 						)
 					}
 				})()}

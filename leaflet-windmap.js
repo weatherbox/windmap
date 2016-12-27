@@ -160,7 +160,9 @@ L.Windmap = L.Class.extend({
 		var flag = L.DomUtil.get('flag-text');
 		var self = this;
 		L.DomEvent.on(flag, 'click', function (e){
-			console.log('click');
+			var p = self._pointMarker.getLatLng();
+			window.windmapUI.showPointDetail(p.lat, p.lng);
+
 			self._flagClicked = true;
 			setTimeout(function(){ self._flagClicked = false; }, 500);
 			return false;
