@@ -43,7 +43,7 @@ L.Windmap = L.Class.extend({
 		});
 
 		// set click event
-		//map.on("click", this.showPointWind, this);
+		map.on("click", this.showPointWind, this);
 	},
 	
 	setTime: function (utc){
@@ -82,11 +82,15 @@ L.Windmap = L.Class.extend({
 	},
 
 	_initStreamline: function (){
+		var self = this;
 		this._initGrib2tile();
 
 		this._streamline = new L.Streamline(this._grib2tile, {
 			onUpdate: window.windmapUI.showLoading,
-			onUpdated: window.windmapUI.hideLoading
+			onUpdated: function () {
+				window.windmapUI.hideLoading();
+				if (self._pointMarker) self.updatePointWind();
+			}
 		});
 		this._streamline.addTo(this._map);
 	},
@@ -107,28 +111,62 @@ L.Windmap = L.Class.extend({
 		var latlng = e.latlng;
 		var v = this._grib2tile.getVector(latlng);
 		if (v[0] != null){
-			var speed = Math.sqrt(v[0]*v[0] + v[1]*v[1]);
-			var ang = Math.acos(v[1]/speed) / Math.PI * 180;
-			if (v[0] < 0) ang = 360 - ang;
-			$("#wind-dialog").text(Math.round(ang) + "° "  +Math.round(speed*10)/10 + "m/s");
+			var icon = this._createPointIcon(v);
+
 			if (this._pointMarker) {
 				this._pointMarker.setLatLng(latlng);
+				this._pointMarker.setIcon(icon);
+				window.windmapUI.changePointDetail(latlng.lat, latlng.lng);
+
 			}else{
-				var circleIcon = L.divIcon({
-					iconSize: [20, 20],
-					iconAnchor: [10, 10],
-					className: "",
-					html: '<svg width="20" height="20"><circle cx="10" cy="10" r="6" fill="none"   stroke="#3aff3a" stroke-width="2.5"/></svg>'
-				});
-				this._pointMarker = L.marker(latlng, {icon:circleIcon}).addTo(this._map);
+				this._pointMarker = L.marker(
+					latlng, 
+					{ icon:icon, draggable:true }
+				).addTo(this._map);
+
+				this._pointMarker.on('dragend', this.updatePointWind, this);
+				this._pointMarker.on('click', this.showPointDetail, this);
 			}
 		}
+	},
+
+	updatePointWind: function () {
+		var latlng = this._pointMarker.getLatLng();
+		var v = this._grib2tile.getVector(latlng);
+		if (v[0] != null){
+			var icon = this._createPointIcon(v);
+			this._pointMarker.setIcon(icon);
+			window.windmapUI.changePointDetail(latlng.lat, latlng.lng);
+		}
+	},
+
+	_createPointIcon: function (v) {
+		var speed = Math.sqrt(v[0]*v[0] + v[1]*v[1]);
+		var ang = Math.acos(v[1] / speed) / Math.PI * 180 + 180;
+		if (v[0] < 0) ang = 360 - ang;
+
+		var text = Math.round(ang) + "° "  + speed.toFixed(1) + "m/s";
+		return new L.divIcon({
+			iconSize: [10, 60],
+			iconAnchor: [0, 60],
+			className: 'leaflet-point-icon',
+			html: '<div class="point-flag">' +
+				'<a class="flag-text" id="flag-text">' + text + '</a>' +
+				'<div class="flag-pole"></div>' +
+				'<div class="flag-draggable-square"></div>' +
+				'<div class="flag-anchor"></div>' +
+				'</div>'
+		});
+	},
+
+	showPointDetail: function (){
+		var p = this._pointMarker.getLatLng();
+		window.windmapUI.showPointDetail(p.lat, p.lng);
 	},
 	
 	hidePointWind: function() {
 		if (this._pointMarker) this._map.removeLayer(this._pointMarker);
 		this._pointMarker = null;
-		$("#wind-dialog").text("");
 	},
 
 	utc: function (dateString){
