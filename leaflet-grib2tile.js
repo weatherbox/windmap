@@ -16,9 +16,11 @@ L.Grib2tile = L.GridLayer.extend({
 		tileSize: new L.Point(241, 253)
 	},
 
-	initialize: function (url, options) {
+	initialize: function (url, element, options) {
 		this._url = url;
 		options = L.setOptions(this, options);
+
+		this.element = element || "wind";
 
 		// tile bounds lat / lon
 		this._tileBoundsLat = options.bounds.getNorth() - options.bounds.getSouth();
@@ -33,11 +35,11 @@ L.Grib2tile = L.GridLayer.extend({
 	},
 
 	getWindField: function (bounds, zoom, callback){
-		this._getField("wind", bounds, zoom, callback);
+		this._getField(bounds, zoom, callback);
 	},
 
-	getField: function (element, bounds, zoom, callback){
-		this._getField(element, bounds, zoom, callback);
+	getField: function (bounds, zoom, callback){
+		this._getField(bounds, zoom, callback);
 	},
 
 	getValue: function (latlon){
@@ -70,24 +72,21 @@ L.Grib2tile = L.GridLayer.extend({
 		var dx = (lng - (p0.lng + dlng * x)) / dlng;
 		var dy = ((p0.lat - dlat * y) - lat) / dlat;
 
-		// util to access grid wind data
-		var _this = this;
-		function v (x, y) {
-			var n = _this._fnx * y + x;
-			return [ _this._ufield[n], _this._vfield[n] ];
-		}
-
 		return this._bilinearInterpolateVector(
 			dx, dy,
-			v(x, y), v(x+1, y), v(x, y+1), v(x+1, y+1)
+			this.v(x, y), this.v(x+1, y), this.v(x, y+1), this.v(x+1, y+1)
 		);
 	},
 	
+	// util to access grid wind data
 	v: function (x, y) {
 		var n = this._fnx * y + x;
 		return [ this._ufield[n], this._vfield[n] ];
 	},
 
+
+	// for StreamlineFieldMercator interpolation
+	// cache X:getDx and Y:getDy -> getVectorXY
 	getVectorXY: function (X, Y) {
 		var x = X[0], y = Y[0], dx = X[1], dy = Y[1];
 		if (x == null || y == null) return [ null, null ];
@@ -298,7 +297,7 @@ L.Grib2tile = L.GridLayer.extend({
 	},
 
 
-	_getField: function (element, mapBounds, mapZoom, callback) {
+	_getField: function (mapBounds, mapZoom, callback) {
 		if (this._loadingTiles) this._abortLoading();
 		if (!mapBounds || !mapZoom) return;
 
@@ -313,12 +312,12 @@ L.Grib2tile = L.GridLayer.extend({
 		// create tile load queue
 		for (var j = tileRange.min.y; j <= tileRange.max.y; j++){
 			for (var i = tileRange.min.x; i <= tileRange.max.x; i++){
-				if (element == "wind"){
+				if (this.element == "wind"){
 					this._enqueue({ x:i, y:j, z:tileZoom, e:"UGRD" });
 					this._enqueue({ x:i, y:j, z:tileZoom, e:"VGRD" });
 
 				}else{
-					this._enqueue({ x:i, y:j, z:tileZoom, e:element });
+					this._enqueue({ x:i, y:j, z:tileZoom });
 				}
 			}
 		}

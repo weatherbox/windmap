@@ -71,14 +71,16 @@ L.Windmap = L.Class.extend({
 		}
 	},
 
-	_initGrib2tile: function (){
+	_initGrib2tile: function (element){
 		var url = this.data.url
 			.replace("{valid_time}", this.dateString(this.time))
 			.replace("{level}", this.level);
 
+		if (element) url = url.replace("{e}", element);
+
 		var tileZoom = (this.level == 'surface') ? [0, 1] : [0];
 
-		return new L.Grib2tile(url, { tileZoom: tileZoom });
+		return new L.Grib2tile(url, element, { tileZoom: tileZoom });
 	},
 
 	_initStreamline: function (){
@@ -95,10 +97,14 @@ L.Windmap = L.Class.extend({
 		this._streamline.addTo(this._map);
 	},
 
-	_update: function (){
+	_updateStreamline: function (){
 		this._windGrib.abort();
 		this._windGrib = this._initGrib2tile();
 		this._streamline.setWindData(this._windGrib);
+	},
+
+	_update: function (){
+		this._updateStreamline();
 	},
 	
 	_getTileJson: function (callback) {
