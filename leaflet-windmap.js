@@ -78,14 +78,14 @@ L.Windmap = L.Class.extend({
 
 		var tileZoom = (this.level == 'surface') ? [0, 1] : [0];
 
-		this._grib2tile = new L.Grib2tile(url, { tileZoom: tileZoom });
+		return new L.Grib2tile(url, { tileZoom: tileZoom });
 	},
 
 	_initStreamline: function (){
 		var self = this;
-		this._initGrib2tile();
+		this._windGrib = this._initGrib2tile();
 
-		this._streamline = new L.Streamline(this._grib2tile, {
+		this._streamline = new L.Streamline(this._windGrib, {
 			onUpdate: window.windmapUI.showLoading,
 			onUpdated: function () {
 				window.windmapUI.hideLoading();
@@ -96,9 +96,9 @@ L.Windmap = L.Class.extend({
 	},
 
 	_update: function (){
-		this._grib2tile.abort();
-		this._initGrib2tile();
-		this._streamline.setWindData(this._grib2tile);
+		this._windGrib.abort();
+		this._windGrib = this._initGrib2tile();
+		this._streamline.setWindData(this._windGrib);
 	},
 	
 	_getTileJson: function (callback) {
@@ -109,7 +109,7 @@ L.Windmap = L.Class.extend({
 
 	showPointWind: function (e) {
 		var latlng = e.latlng;
-		var v = this._grib2tile.getVector(latlng);
+		var v = this._windGrib.getVector(latlng);
 		if (v[0] != null){
 			var icon = this._createPointIcon(v);
 
@@ -132,7 +132,7 @@ L.Windmap = L.Class.extend({
 
 	updatePointWind: function () {
 		var latlng = this._pointMarker.getLatLng();
-		var v = this._grib2tile.getVector(latlng);
+		var v = this._windGrib.getVector(latlng);
 		if (v[0] != null){
 			var icon = this._createPointIcon(v);
 			this._pointMarker.setIcon(icon);
