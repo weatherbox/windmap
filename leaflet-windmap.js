@@ -94,17 +94,30 @@ L.Windmap = L.Class.extend({
 				if (self._pointMarker) self.updatePointWind();
 			}
 		});
+
+		if (this.element != "wind"){
+			this._maskGrib = this._initGrib2tile(this.element);
+			this._streamline.setMaskData(this._maskGrib);
+		}
+
 		this._streamline.addTo(this._map);
 	},
 
-	_updateStreamline: function (){
+	_updateWindGrib: function (){
 		this._windGrib.abort();
 		this._windGrib = this._initGrib2tile();
 		this._streamline.setWindData(this._windGrib);
 	},
 
+	_updateMaskGrib: function (){
+		this._maskGrib.abort();
+		this._maskGrib = this._initGrib2tile(this.element);
+		this._streamline.setMaskData(this._maskGrib);
+	},
+
 	_update: function (){
-		this._updateStreamline();
+		this._updateWindGrib();
+		if (this._maskGrib) this._updateMaskGrib();
 	},
 	
 	_getTileJson: function (callback) {
