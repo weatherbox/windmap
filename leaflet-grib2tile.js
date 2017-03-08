@@ -191,14 +191,17 @@ L.Grib2tile = L.GridLayer.extend({
 		this._fny = (p2.ty - p1.ty) * (this._tny - 1) - p1.y + p2.y + 2;
 		var length = this._fnx * this._fny;
 
-		this._ufield = new Float32Array(length);
-		this._vfield = new Float32Array(length);
+		if (this.element == "wind"){
+			this._ufield = new Float32Array(length);
+			this._vfield = new Float32Array(length);
+
+		}else{
+			this._field = new Float32Array(length);
+		}
 
 		// insert to field from tile
 		for (var ity = p1.ty; ity <= p2.ty; ity++){
 			for (var itx = p1.tx; itx <= p2.tx; itx++){
-				var ukey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"UGRD" });
-				var vkey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"VGRD" });
 
 				var iy1 = (ity == p1.ty) ? p1.y : 0;
 				var iy2 = (ity == p2.ty) ? p2.y : this._tny - 1;
@@ -206,16 +209,35 @@ L.Grib2tile = L.GridLayer.extend({
 				var ix2 = (itx == p2.tx) ? p2.x : this._tnx - 1;
 				var ifx = (itx == p1.tx) ? 0 : (itx - p1.tx) * (this._tnx - 1) - p1.x + 1;
 				var ify = (ity == p1.ty) ? 0 : (ity - p1.ty) * (this._tny - 1) - p1.y + 1;
-				var offset, offset_f, u,v;
+				var offset, offset_f;
 
-				for (var iy = iy1; iy <= iy2; iy++){
-					offset = this._tnx * iy;
-					u = this._tiles[ukey].data.subarray(offset + ix1, offset + ix2 + 1);
-					v = this._tiles[vkey].data.subarray(offset + ix1, offset + ix2 + 1);
+				if (this.element == "wind"){
+					var ukey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"UGRD" });
+					var vkey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"VGRD" });
+					var u, v;
 
-					offset_f = ifx + this._fnx * (ify + iy - iy1);
-					this._ufield.set(u, offset_f);
-					this._vfield.set(v, offset_f);
+					for (var iy = iy1; iy <= iy2; iy++){
+						offset = this._tnx * iy;
+						u = this._tiles[ukey].data.subarray(offset + ix1, offset + ix2 + 1);
+						v = this._tiles[vkey].data.subarray(offset + ix1, offset + ix2 + 1);
+
+						offset_f = ifx + this._fnx * (ify + iy - iy1);
+						this._ufield.set(u, offset_f);
+						this._vfield.set(v, offset_f);
+					}
+
+				}else{
+					var key = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom });
+					var x;
+
+					for (var iy = iy1; iy <= iy2; iy++){
+						offset = this._tnx * iy;
+						x = this._tiles[key].data.subarray(offset + ix1, offset + ix2 + 1);
+
+						offset_f = ifx + this._fnx * (ify + iy - iy1);
+						this._field.set(x, offset_f);
+					}
+
 				}
 			}
 		}
