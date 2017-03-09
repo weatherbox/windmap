@@ -43,8 +43,34 @@ L.Grib2tile = L.GridLayer.extend({
 	},
 
 	getValue: function (latlon){
+		if (!this._fieldLatLngBounds.contains(latlng)){
+			return null;
+		}
 
+		var lat = latlng.lat,
+			lng = latlng.lng;
+
+		var p0 = this._p0,
+			dlat = this._dlat,
+			dlng = this._dlng;
+		
+		var x = Math.floor((lng - p0.lng) / dlng);
+		var y = Math.floor((p0.lat - lat) / dlat);
+		var dx = (lng - (p0.lng + dlng * x)) / dlng;
+		var dy = ((p0.lat - dlat * y) - lat) / dlat;
+
+		return this._bilinearInterpolate(
+			dx, dy,
+			this.x(x, y), this.x(x+1, y), this.x(x, y+1), this.x(x+1, y+1)
+		);
 	},
+
+	// util to access grid wind data
+	x: function (x, y) {
+		var n = this._fnx * y + x;
+		return this._field[n];
+	},
+
 
 	abort: function () {
 		if (this._loadingTile) this._abortLoading();
@@ -97,6 +123,16 @@ L.Grib2tile = L.GridLayer.extend({
 		);
 	},
 
+	getValueXY: function (X, Y) {
+		var x = X[0], y = Y[0], dx = X[1], dy = Y[1];
+		if (x == null || y == null) return null;
+		
+		return this._bilinearInterpolateVector(
+			dx, dy,
+			this.x(x, y), this.x(x+1, y), this.x(x, y+1), this.x(x+1, y+1)
+		);
+	},
+
 	getDx: function (lng) {
 		if (lng < this._fieldLatLngBounds.getWest() || lng > this._fieldLatLngBounds.getEast()) return [ null, null ];
 		var x = Math.floor((lng - this._p0.lng) / this._dlng);
@@ -121,6 +157,13 @@ L.Grib2tile = L.GridLayer.extend({
 		return [ u, v ];
 	},
 
+	_bilinearInterpolate: function (x, y, p00, p10, p01, p11) {
+		var rx = (1 - x);
+		var ry = (1 - y);
+		var a = rx * ry,  b = x * ry,  c = rx * y,  d = x * y;
+		var v = p00 * a + p10 * b + p01 * c + p11 * d;
+		return v;
+	},
 
 	_createField: function () {
 		console.time("create field");
