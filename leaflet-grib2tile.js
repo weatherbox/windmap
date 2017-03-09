@@ -127,7 +127,7 @@ L.Grib2tile = L.GridLayer.extend({
 		var x = X[0], y = Y[0], dx = X[1], dy = Y[1];
 		if (x == null || y == null) return null;
 		
-		return this._bilinearInterpolateVector(
+		return this._bilinearInterpolate(
 			dx, dy,
 			this.x(x, y), this.x(x+1, y), this.x(x, y+1), this.x(x+1, y+1)
 		);
@@ -270,7 +270,7 @@ L.Grib2tile = L.GridLayer.extend({
 					}
 
 				}else{
-					var key = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom });
+					var key = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:this.element });
 					var x;
 
 					for (var iy = iy1; iy <= iy2; iy++){
@@ -382,7 +382,7 @@ L.Grib2tile = L.GridLayer.extend({
 					this._enqueue({ x:i, y:j, z:tileZoom, e:"VGRD" });
 
 				}else{
-					this._enqueue({ x:i, y:j, z:tileZoom });
+					this._enqueue({ x:i, y:j, z:tileZoom, e:this.element });
 				}
 			}
 		}
