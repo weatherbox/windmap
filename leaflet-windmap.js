@@ -35,7 +35,7 @@ L.Windmap = L.Class.extend({
 
 			// init windmap elements
 			self.level = 'surface';
-			self.element = 'wind';
+			self.element = 'TMP';
 
 			self._initStreamline();
 
@@ -97,7 +97,7 @@ L.Windmap = L.Class.extend({
 
 		if (this.element != "wind"){
 			this._maskGrib = this._initGrib2tile(this.element);
-			this._streamline.setMaskData(this._maskGrib);
+			this._streamline.setMaskData(this._maskGrib, this._maskColor(this.element));
 		}
 
 		this._streamline.addTo(this._map);
@@ -112,7 +112,7 @@ L.Windmap = L.Class.extend({
 	_updateMaskGrib: function (){
 		this._maskGrib.abort();
 		this._maskGrib = this._initGrib2tile(this.element);
-		this._streamline.setMaskData(this._maskGrib);
+		this._streamline.setMaskData(this._maskGrib, this._maskColor(this.element));
 	},
 
 	_update: function (){
@@ -206,6 +206,20 @@ L.Windmap = L.Class.extend({
 		let hh = ('0' + date.getUTCHours()).slice(-2);
 		let mm = ('0' + date.getUTCMinutes()).slice(-2);
 		return year + MM + dd + hh + mm
+	},
+
+	_maskColor: function (element){
+		// function (v) -> return [R, G, B, A]
+		let MASK_ALPHA = Streamline.prototype.MASK_ALPHA
+
+		if (element == 'TMP'){  // temperture
+			return function (v){
+				let d = (v - 243) * 5;
+				return [d, 0, d, MASK_ALPHA];
+			}
+		}
+
+
 	}
 
 });
