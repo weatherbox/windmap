@@ -43,7 +43,7 @@ L.Windmap = L.Class.extend({
 		});
 
 		// set click event
-		map.on("click", this.showPointWind, this);
+		map.on("click", this.showPointValue, this);
 	},
 	
 	setTime: function (utc){
@@ -91,7 +91,7 @@ L.Windmap = L.Class.extend({
 			onUpdate: window.windmapUI.showLoading,
 			onUpdated: function () {
 				window.windmapUI.hideLoading();
-				if (self._pointMarker) self.updatePointWind();
+				if (self._pointMarker) self.updatePointValue();
 			}
 		});
 
@@ -118,6 +118,7 @@ L.Windmap = L.Class.extend({
 	_update: function (){
 		this._updateWindGrib();
 		if (this._maskGrib) this._updateMaskGrib();
+		this._streamline._update();
 	},
 	
 	_getTileJson: function (callback) {
@@ -126,45 +127,78 @@ L.Windmap = L.Class.extend({
 		});
 	},
 
-	showPointWind: function (e) {
+
+	/*
+	 * PointValue - marker on map
+     *
+	 */
+	showPointValue: function (e) {
 		var latlng = e.latlng;
-		var v = this._windGrib.getVector(latlng);
-		if (v[0] != null){
-			var icon = this._createPointIcon(v);
 
-			if (this._pointMarker) {
-				this._pointMarker.setLatLng(latlng);
-				this._pointMarker.setIcon(icon);
-				window.windmapUI.changePointDetail(latlng.lat, latlng.lng);
+		if (this.element == "wind"){
+			var v = this._windGrib.getVector(latlng);
+			if (v[0] != null) this._initPointValue(v, latlng);
 
-			}else{
-				this._pointMarker = L.marker(
-					latlng, 
-					{ icon:icon, draggable:true }
-				).addTo(this._map);
-
-				this._pointMarker.on('dragend', this.updatePointWind, this);
-				this._pointMarker.on('click', this.showPointDetail, this);
-			}
+		}else{
+			var v = this._maskGrib.getValue(latlng);
+			if (v != null) this._initPointValue(v, latlng);
 		}
 	},
 
-	updatePointWind: function () {
+	updatePointValue: function () {
 		var latlng = this._pointMarker.getLatLng();
-		var v = this._windGrib.getVector(latlng);
-		if (v[0] != null){
-			var icon = this._createPointIcon(v);
+
+		if (this.element == "wind"){
+			var v = this._windGrib.getVector(latlng);
+			if (v[0] != null) this._updatePointValue(v, latlng);
+
+		}else{
+			var v = this._maskGrib.getValue(latlng);
+			if (v != null) this._updatePointValue(v, latlng);
+		}
+	},
+
+	_updatePointValue: function (v, latlng) {
+		var icon = this._createPointIcon(v);
+		this._pointMarker.setIcon(icon);
+		window.windmapUI.changePointDetail(latlng.lat, latlng.lng);
+	},
+
+	_pointText: function (v) {
+		if (this.element == "wind"){
+			var speed = Math.sqrt(v[0]*v[0] + v[1]*v[1]);
+			var ang = Math.acos(v[1] / speed) / Math.PI * 180 + 180;
+			if (v[0] < 0) ang = 360 - ang;
+
+			return Math.round(ang) + "° "  + speed.toFixed(1) + "m/s";
+
+		}else{
+			return v.toFixed(1);
+		}
+	},
+
+	_initPointValue: function (v, latlng){
+		var icon = this._createPointIcon(v);
+
+		if (this._pointMarker) {
+			this._pointMarker.setLatLng(latlng);
 			this._pointMarker.setIcon(icon);
 			window.windmapUI.changePointDetail(latlng.lat, latlng.lng);
+
+		}else{
+			this._pointMarker = L.marker(
+				latlng, 
+				{ icon:icon, draggable:true }
+			).addTo(this._map);
+
+			this._pointMarker.on('dragend', this.updatePointValue, this);
+			this._pointMarker.on('click', this.showPointDetail, this);
 		}
 	},
+	
+	_createPointIcon: function (value) {
+		var text = this._pointText(value);
 
-	_createPointIcon: function (v) {
-		var speed = Math.sqrt(v[0]*v[0] + v[1]*v[1]);
-		var ang = Math.acos(v[1] / speed) / Math.PI * 180 + 180;
-		if (v[0] < 0) ang = 360 - ang;
-
-		var text = Math.round(ang) + "° "  + speed.toFixed(1) + "m/s";
 		return new L.divIcon({
 			iconSize: [10, 60],
 			iconAnchor: [0, 60],
@@ -183,7 +217,7 @@ L.Windmap = L.Class.extend({
 		window.windmapUI.showPointDetail(p.lat, p.lng);
 	},
 	
-	hidePointWind: function() {
+	hidePointValue: function() {
 		if (this._pointMarker) this._map.removeLayer(this._pointMarker);
 		this._pointMarker = null;
 	},

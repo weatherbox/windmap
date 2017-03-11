@@ -42,7 +42,7 @@ L.Grib2tile = L.GridLayer.extend({
 		this._getField(bounds, zoom, callback);
 	},
 
-	getValue: function (latlon){
+	getValue: function (latlng){
 		if (!this._fieldLatLngBounds.contains(latlng)){
 			return null;
 		}
