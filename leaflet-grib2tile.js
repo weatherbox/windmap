@@ -462,7 +462,7 @@ L.Grib2tile = L.GridLayer.extend({
 
 	_abortLoading: function () {
 		for (var key in this._tiles) {
-			if (!this._tiles[key].loaded) {
+			if (!this._tiles[key].loaded  && this._tiles[key]._req) {
 			   this._tiles[key]._req.abort();
 			}
 		}
