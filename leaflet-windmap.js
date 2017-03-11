@@ -35,7 +35,7 @@ L.Windmap = L.Class.extend({
 
 			// init windmap elements
 			self.level = 'surface';
-			self.element = 'TCDC';
+			self.element = 'APCP';
 
 			self._initStreamline();
 
@@ -179,6 +179,9 @@ L.Windmap = L.Class.extend({
 		}else if (this.element == "TCDC"){
 			return v.toFixed(0) + "%";
 
+		}else if (this.element == "APCP"){
+			return v.toFixed(1) + "mm/h";
+
 		}else{
 			return v.toFixed(1);
 		}
@@ -284,6 +287,17 @@ L.Windmap = L.Class.extend({
 			return function (v){
 				let c = cloudColorScale(v).rgb();
 				let alpha = MASK_ALPHA * v / 100;
+				return [c[0], c[1], c[2], alpha];
+			}
+
+		}else if (element == 'APCP'){  // rain
+			let rainColorScale = chroma.scale(['008ae5', 'yellow', '#fa0080'])
+    			.domain([0, 0.3, 1])
+				.mode('lch');
+
+			return function (v){
+				let c = rainColorScale(Math.min(v / 100, 1)).rgb();
+				let alpha = (v < 0.1) ? 0 : (v < 1) ? MASK_ALPHA * v : MASK_ALPHA;
 				return [c[0], c[1], c[2], alpha];
 			}
 		}
