@@ -19,7 +19,7 @@ const options = [
 
 export default class LevelDropdown extends React.Component {
 	handleChange = (e, {value}) => {
-		console.log(value)
+		window.windmap.setElement(value)
 	}
 
 	render() {

@@ -35,7 +35,7 @@ L.Windmap = L.Class.extend({
 
 			// init windmap elements
 			self.level = 'surface';
-			self.element = 'PRMSL';
+			self.element = 'wind';
 
 			self._initStreamline();
 
@@ -48,6 +48,28 @@ L.Windmap = L.Class.extend({
 	
 	setTime: function (utc){
 		this.time = utc;
+		this._update();
+	},
+
+	setElement: function (element){
+		console.log(element);
+		var code = {
+			wind: "wind",
+			temp: "TMP",
+			cloud: "TCDC",
+			rain: "APCP",
+			press: "PRMSL"
+		};
+		this.element = code[element];
+
+		if (this.element == "wind"){
+			this._maskGrib = null;
+			this._streamline.setMaskData(null);
+
+		}else{
+			this._maskGrib = this._initGrib2tile(this.element);
+			this._streamline.setMaskData(this._maskGrib, this._maskColor(this.element));
+		}
 		this._update();
 	},
 	
