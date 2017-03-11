@@ -172,6 +172,9 @@ L.Windmap = L.Class.extend({
 
 			return Math.round(ang) + "° "  + speed.toFixed(1) + "m/s";
 
+		}else if (this.element == "TMP"){
+			return (v - 273.15).toFixed(1) + "℃";
+
 		}else{
 			return v.toFixed(1);
 		}
