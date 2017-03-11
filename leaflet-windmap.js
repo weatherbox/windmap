@@ -215,9 +215,15 @@ L.Windmap = L.Class.extend({
 		});
 	},
 
-	showPointDetail: function (){
+	showPointDetail: function (e){
+		var ep = e.originalEvent;
 		var p = this._pointMarker.getLatLng();
-		window.windmapUI.showPointDetail(p.lat, p.lng);
+		var pp = this._map.latLngToLayerPoint(p);
+
+		// check click point (avoid double click zooming)
+		if (Math.abs(ep.x - pp.x) > 10 || Math.abs(ep.y - pp.y) > 10){
+			window.windmapUI.showPointDetail(p.lat, p.lng);
+		}
 	},
 	
 	hidePointValue: function() {
