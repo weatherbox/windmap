@@ -35,7 +35,7 @@ L.Windmap = L.Class.extend({
 
 			// init windmap elements
 			self.level = 'surface';
-			self.element = 'APCP';
+			self.element = 'PRMSL';
 
 			self._initStreamline();
 
@@ -182,6 +182,9 @@ L.Windmap = L.Class.extend({
 		}else if (this.element == "APCP"){
 			return v.toFixed(1) + "mm/h";
 
+		}else if (this.element == "PRMSL"){
+			return (v / 100).toFixed(0) + "hPa";
+
 		}else{
 			return v.toFixed(1);
 		}
@@ -299,6 +302,16 @@ L.Windmap = L.Class.extend({
 				let c = rainColorScale(Math.min(v / 100, 1)).rgb();
 				let alpha = (v < 0.1) ? 0 : (v < 1) ? MASK_ALPHA * v : MASK_ALPHA;
 				return [c[0], c[1], c[2], alpha];
+			}
+
+		}else if (element == 'PRMSL'){  // pressure
+			let presColorScale = chroma.scale('RdYlBu').domain([1,0]);
+
+			return function (v){
+				let vh = (v / 100).toFixed(0); // quantize 1hPa
+				let vd = Math.min(Math.max((vh - 993)/40, 0), 1)
+				let c = presColorScale(vd).rgb();
+				return [c[0], c[1], c[2], MASK_ALPHA];
 			}
 		}
 	}
