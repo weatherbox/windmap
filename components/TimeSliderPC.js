@@ -86,7 +86,7 @@ export default class TimeSliderPC extends React.Component {
 	}
 
 	_getDayString = (date) => {
-		return (date.getMonth() + 1) + '/' + ('0' + date.getDate()).slice(-2)
+		return ('0' + (date.getMonth() + 1)).slice(-2) + '/' + ('0' + date.getDate()).slice(-2)
 	}
 
 	changeInterval = (interval) => {

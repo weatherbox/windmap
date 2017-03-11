@@ -16,9 +16,11 @@ L.Grib2tile = L.GridLayer.extend({
 		tileSize: new L.Point(241, 253)
 	},
 
-	initialize: function (url, options) {
+	initialize: function (url, element, options) {
 		this._url = url;
 		options = L.setOptions(this, options);
+
+		this.element = element || "wind";
 
 		// tile bounds lat / lon
 		this._tileBoundsLat = options.bounds.getNorth() - options.bounds.getSouth();
@@ -33,16 +35,42 @@ L.Grib2tile = L.GridLayer.extend({
 	},
 
 	getWindField: function (bounds, zoom, callback){
-		this._getField("wind", bounds, zoom, callback);
+		this._getField(bounds, zoom, callback);
 	},
 
-	getField: function (element, bounds, zoom, callback){
-		this._getField(element, bounds, zoom, callback);
+	getField: function (bounds, zoom, callback){
+		this._getField(bounds, zoom, callback);
 	},
 
-	getValue: function (latlon){
+	getValue: function (latlng){
+		if (!this._fieldLatLngBounds.contains(latlng)){
+			return null;
+		}
 
+		var lat = latlng.lat,
+			lng = latlng.lng;
+
+		var p0 = this._p0,
+			dlat = this._dlat,
+			dlng = this._dlng;
+		
+		var x = Math.floor((lng - p0.lng) / dlng);
+		var y = Math.floor((p0.lat - lat) / dlat);
+		var dx = (lng - (p0.lng + dlng * x)) / dlng;
+		var dy = ((p0.lat - dlat * y) - lat) / dlat;
+
+		return this._bilinearInterpolate(
+			dx, dy,
+			this.x(x, y), this.x(x+1, y), this.x(x, y+1), this.x(x+1, y+1)
+		);
 	},
+
+	// util to access grid wind data
+	x: function (x, y) {
+		var n = this._fnx * y + x;
+		return this._field[n];
+	},
+
 
 	abort: function () {
 		if (this._loadingTile) this._abortLoading();
@@ -70,24 +98,21 @@ L.Grib2tile = L.GridLayer.extend({
 		var dx = (lng - (p0.lng + dlng * x)) / dlng;
 		var dy = ((p0.lat - dlat * y) - lat) / dlat;
 
-		// util to access grid wind data
-		var _this = this;
-		function v (x, y) {
-			var n = _this._fnx * y + x;
-			return [ _this._ufield[n], _this._vfield[n] ];
-		}
-
 		return this._bilinearInterpolateVector(
 			dx, dy,
-			v(x, y), v(x+1, y), v(x, y+1), v(x+1, y+1)
+			this.v(x, y), this.v(x+1, y), this.v(x, y+1), this.v(x+1, y+1)
 		);
 	},
 	
+	// util to access grid wind data
 	v: function (x, y) {
 		var n = this._fnx * y + x;
 		return [ this._ufield[n], this._vfield[n] ];
 	},
 
+
+	// for StreamlineFieldMercator interpolation
+	// cache X:getDx and Y:getDy -> getVectorXY
 	getVectorXY: function (X, Y) {
 		var x = X[0], y = Y[0], dx = X[1], dy = Y[1];
 		if (x == null || y == null) return [ null, null ];
@@ -95,6 +120,16 @@ L.Grib2tile = L.GridLayer.extend({
 		return this._bilinearInterpolateVector(
 			dx, dy,
 			this.v(x, y), this.v(x+1, y), this.v(x, y+1), this.v(x+1, y+1)
+		);
+	},
+
+	getValueXY: function (X, Y) {
+		var x = X[0], y = Y[0], dx = X[1], dy = Y[1];
+		if (x == null || y == null) return null;
+		
+		return this._bilinearInterpolate(
+			dx, dy,
+			this.x(x, y), this.x(x+1, y), this.x(x, y+1), this.x(x+1, y+1)
 		);
 	},
 
@@ -122,6 +157,13 @@ L.Grib2tile = L.GridLayer.extend({
 		return [ u, v ];
 	},
 
+	_bilinearInterpolate: function (x, y, p00, p10, p01, p11) {
+		var rx = (1 - x);
+		var ry = (1 - y);
+		var a = rx * ry,  b = x * ry,  c = rx * y,  d = x * y;
+		var v = p00 * a + p10 * b + p01 * c + p11 * d;
+		return v;
+	},
 
 	_createField: function () {
 		console.time("create field");
@@ -192,14 +234,17 @@ L.Grib2tile = L.GridLayer.extend({
 		this._fny = (p2.ty - p1.ty) * (this._tny - 1) - p1.y + p2.y + 2;
 		var length = this._fnx * this._fny;
 
-		this._ufield = new Float32Array(length);
-		this._vfield = new Float32Array(length);
+		if (this.element == "wind"){
+			this._ufield = new Float32Array(length);
+			this._vfield = new Float32Array(length);
+
+		}else{
+			this._field = new Float32Array(length);
+		}
 
 		// insert to field from tile
 		for (var ity = p1.ty; ity <= p2.ty; ity++){
 			for (var itx = p1.tx; itx <= p2.tx; itx++){
-				var ukey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"UGRD" });
-				var vkey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"VGRD" });
 
 				var iy1 = (ity == p1.ty) ? p1.y : 0;
 				var iy2 = (ity == p2.ty) ? p2.y : this._tny - 1;
@@ -207,16 +252,35 @@ L.Grib2tile = L.GridLayer.extend({
 				var ix2 = (itx == p2.tx) ? p2.x : this._tnx - 1;
 				var ifx = (itx == p1.tx) ? 0 : (itx - p1.tx) * (this._tnx - 1) - p1.x + 1;
 				var ify = (ity == p1.ty) ? 0 : (ity - p1.ty) * (this._tny - 1) - p1.y + 1;
-				var offset, offset_f, u,v;
+				var offset, offset_f;
 
-				for (var iy = iy1; iy <= iy2; iy++){
-					offset = this._tnx * iy;
-					u = this._tiles[ukey].data.subarray(offset + ix1, offset + ix2 + 1);
-					v = this._tiles[vkey].data.subarray(offset + ix1, offset + ix2 + 1);
+				if (this.element == "wind"){
+					var ukey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"UGRD" });
+					var vkey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"VGRD" });
+					var u, v;
 
-					offset_f = ifx + this._fnx * (ify + iy - iy1);
-					this._ufield.set(u, offset_f);
-					this._vfield.set(v, offset_f);
+					for (var iy = iy1; iy <= iy2; iy++){
+						offset = this._tnx * iy;
+						u = this._tiles[ukey].data.subarray(offset + ix1, offset + ix2 + 1);
+						v = this._tiles[vkey].data.subarray(offset + ix1, offset + ix2 + 1);
+
+						offset_f = ifx + this._fnx * (ify + iy - iy1);
+						this._ufield.set(u, offset_f);
+						this._vfield.set(v, offset_f);
+					}
+
+				}else{
+					var key = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:this.element });
+					var x;
+
+					for (var iy = iy1; iy <= iy2; iy++){
+						offset = this._tnx * iy;
+						x = this._tiles[key].data.subarray(offset + ix1, offset + ix2 + 1);
+
+						offset_f = ifx + this._fnx * (ify + iy - iy1);
+						this._field.set(x, offset_f);
+					}
+
 				}
 			}
 		}
@@ -298,7 +362,7 @@ L.Grib2tile = L.GridLayer.extend({
 	},
 
 
-	_getField: function (element, mapBounds, mapZoom, callback) {
+	_getField: function (mapBounds, mapZoom, callback) {
 		if (this._loadingTiles) this._abortLoading();
 		if (!mapBounds || !mapZoom) return;
 
@@ -313,12 +377,12 @@ L.Grib2tile = L.GridLayer.extend({
 		// create tile load queue
 		for (var j = tileRange.min.y; j <= tileRange.max.y; j++){
 			for (var i = tileRange.min.x; i <= tileRange.max.x; i++){
-				if (element == "wind"){
+				if (this.element == "wind"){
 					this._enqueue({ x:i, y:j, z:tileZoom, e:"UGRD" });
 					this._enqueue({ x:i, y:j, z:tileZoom, e:"VGRD" });
 
 				}else{
-					this._enqueue({ x:i, y:j, z:tileZoom, e:element });
+					this._enqueue({ x:i, y:j, z:tileZoom, e:this.element });
 				}
 			}
 		}
@@ -398,7 +462,7 @@ L.Grib2tile = L.GridLayer.extend({
 
 	_abortLoading: function () {
 		for (var key in this._tiles) {
-			if (!this._tiles[key].loaded) {
+			if (!this._tiles[key].loaded  && this._tiles[key]._req) {
 			   this._tiles[key]._req.abort();
 			}
 		}
