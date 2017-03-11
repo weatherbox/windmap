@@ -35,7 +35,7 @@ L.Windmap = L.Class.extend({
 
 			// init windmap elements
 			self.level = 'surface';
-			self.element = 'TMP';
+			self.element = 'TCDC';
 
 			self._initStreamline();
 
@@ -72,13 +72,14 @@ L.Windmap = L.Class.extend({
 	},
 
 	_initGrib2tile: function (element){
+		var level = (!element || element == "TMP") ? this.level : "surface";
 		var url = this.data.url
 			.replace("{valid_time}", this.dateString(this.time))
-			.replace("{level}", this.level);
+			.replace("{level}", level);
 
 		if (element) url = url.replace("{e}", element);
 
-		var tileZoom = (this.level == 'surface') ? [0, 1] : [0];
+		var tileZoom = (level == "surface") ? [0, 1] : [0];
 
 		return new L.Grib2tile(url, element, { tileZoom: tileZoom });
 	},
@@ -175,6 +176,9 @@ L.Windmap = L.Class.extend({
 		}else if (this.element == "TMP"){
 			return (v - 273.15).toFixed(1) + "℃";
 
+		}else if (this.element == "TCDC"){
+			return v.toFixed(0) + "%";
+
 		}else{
 			return v.toFixed(1);
 		}
@@ -253,7 +257,7 @@ L.Windmap = L.Class.extend({
 
 	_maskColor: function (element){
 		// function (v) -> return [R, G, B, A]
-		let MASK_ALPHA = Streamline.prototype.MASK_ALPHA
+		let MASK_ALPHA = Streamline.prototype.MASK_ALPHA;
 
 		if (element == 'TMP'){  // temperture
 			let tempColorScale = SegmentedColorScale([
@@ -272,6 +276,15 @@ L.Windmap = L.Class.extend({
 
 			return function (v){
 				return tempColorScale(v, MASK_ALPHA);
+			}
+
+		}else if (element == 'TCDC'){  // total cloud cover
+			let cloudColorScale = chroma.scale(['black', 'white']).domain([0,100]);
+
+			return function (v){
+				let c = cloudColorScale(v).rgb();
+				let alpha = MASK_ALPHA * v / 100;
+				return [c[0], c[1], c[2], alpha];
 			}
 		}
 	}
