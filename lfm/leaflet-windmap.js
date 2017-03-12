@@ -18,8 +18,7 @@ L.Windmap = L.Class.extend({
 		L.setOptions(this, options);
 
 		this.data = {
-			//url: "http://msm-tiles.s3-website-ap-northeast-1.amazonaws.com/tiles/201703120300/{valid_time}/{level}/{e}/{z}/{x}_{y}.bin"
-			url: "http://localhost:10080/weatherbox/grib2tiles/functions/lfm/tiles/201702170000/201702170100/{level}/{e}/{z}/{x}_{y}.bin"
+			url: "http://msm-tiles.s3-website-ap-northeast-1.amazonaws.com/lfm-tiles/201702170000/201702170100/{level}/{e}/{z}/{x}_{y}.bin"
 		};
 
 		// init windmap elements
