@@ -54,13 +54,11 @@ L.Grib2tile = L.GridLayer.extend({
 		var p0 = this._p0,
 			dlat = this._dlat,
 			dlng = this._dlng;
-		
+
 		var x = Math.floor((lng - p0.lng) / dlng);
 		var y = Math.floor((p0.lat - lat) / dlat);
 		var dx = (lng - (p0.lng + dlng * x)) / dlng;
 		var dy = ((p0.lat - dlat * y) - lat) / dlat;
-
-		if (this.x(x, y) == 4294967296) return null;
 
 		return this._bilinearInterpolate(
 			dx, dy,
@@ -101,8 +99,6 @@ L.Grib2tile = L.GridLayer.extend({
 		var dx = (lng - (p0.lng + dlng * x)) / dlng;
 		var dy = ((p0.lat - dlat * y) - lat) / dlat;
 
-		if (this.v(x, y) == 4294967296) return [null, null];
-
 		return this._bilinearInterpolateVector(
 			dx, dy,
 			this.v(x, y), this.v(x+1, y), this.v(x, y+1), this.v(x+1, y+1)
@@ -121,7 +117,6 @@ L.Grib2tile = L.GridLayer.extend({
 	getVectorXY: function (X, Y) {
 		var x = X[0], y = Y[0], dx = X[1], dy = Y[1];
 		if (x == null || y == null) return [ null, null ];
-		if (this.v(x, y) == 4294967296) return [null, null];
 		
 		return this._bilinearInterpolateVector(
 			dx, dy,
@@ -132,7 +127,6 @@ L.Grib2tile = L.GridLayer.extend({
 	getValueXY: function (X, Y) {
 		var x = X[0], y = Y[0], dx = X[1], dy = Y[1];
 		if (x == null || y == null) return null;
-		if (this.x(x, y) == 4294967296) return null;
 		
 		return this._bilinearInterpolate(
 			dx, dy,
@@ -161,7 +155,7 @@ L.Grib2tile = L.GridLayer.extend({
 		var a = rx * ry,  b = x * ry,  c = rx * y,  d = x * y;
 		var u = p00[0] * a + p10[0] * b + p01[0] * c + p11[0] * d;
 		var v = p00[1] * a + p10[1] * b + p01[1] * c + p11[1] * d;
-		return [ u, v ];
+		return (isNaN(u)) ? [null, null] : [ u, v ];
 	},
 
 	_bilinearInterpolate: function (x, y, p00, p10, p01, p11) {
@@ -169,7 +163,7 @@ L.Grib2tile = L.GridLayer.extend({
 		var ry = (1 - y);
 		var a = rx * ry,  b = x * ry,  c = rx * y,  d = x * y;
 		var v = p00 * a + p10 * b + p01 * c + p11 * d;
-		return v;
+		return (isNaN(v)) ? null : v;
 	},
 
 	_createField: function () {
