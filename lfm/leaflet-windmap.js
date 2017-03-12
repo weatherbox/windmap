@@ -12,35 +12,21 @@
  */
 
 L.Windmap = L.Class.extend({
-	options: {
-		tileJson: "http://msm-tiles.s3-website-ap-northeast-1.amazonaws.com/tiles/tile.json"
-	},
 
 	initialize: function (map, options) {
 		this._map = map;
 		L.setOptions(this, options);
 
-		var self = this;
-		this._getTileJson(function (data) {
-			self.data = data;
+		this.data = {
+			//url: "http://msm-tiles.s3-website-ap-northeast-1.amazonaws.com/tiles/201703120300/{valid_time}/{level}/{e}/{z}/{x}_{y}.bin"
+			url: "http://localhost:10080/weatherbox/windmap/lfm/tiles/201702170100/201702170100/{level}/{e}/{z}/{x}_{y}.bin"
+		};
 
-			// init time
-			var valid_time = data.surface.valid_time;
-			self.start_time = self.utc(valid_time[0]);
-			self.end_time = self.utc(valid_time[valid_time.length - 1]);
+		// init windmap elements
+		this.level = 'surface';
+		this.element = 'wind';
 
-			// show last o-clock
-			var now = Math.floor(Date.now() / (3600 * 1000)) * 3600 * 1000;
-			self.time = Math.max(self.start_time, Math.min(self.end_time, now));
-
-			// init windmap elements
-			self.level = 'surface';
-			self.element = 'wind';
-
-			self._initStreamline();
-
-			window.windmapUI.setTimeSlider(self.start_time, self.end_time, self.time);
-		});
+		this._initStreamline();
 
 		// set click event
 		map.on("click", this.showPointValue, this);
@@ -101,7 +87,7 @@ L.Windmap = L.Class.extend({
 
 		if (element) url = url.replace("{e}", element);
 
-		var tileZoom = (level == "surface") ? [0, 1] : [0];
+		var tileZoom = (level == "surface") ? [0, 1, 2] : [0, 1];
 
 		return new L.Grib2tile(url, element, { tileZoom: tileZoom });
 	},
@@ -184,7 +170,7 @@ L.Windmap = L.Class.extend({
 	_updatePointValue: function (v, latlng) {
 		var icon = this._createPointIcon(v);
 		this._pointMarker.setIcon(icon);
-		window.windmapUI.changePointDetail(latlng.lat, latlng.lng);
+		//window.windmapUI.changePointDetail(latlng.lat, latlng.lng);
 	},
 
 	_pointText: function (v) {
@@ -218,7 +204,7 @@ L.Windmap = L.Class.extend({
 		if (this._pointMarker) {
 			this._pointMarker.setLatLng(latlng);
 			this._pointMarker.setIcon(icon);
-			window.windmapUI.changePointDetail(latlng.lat, latlng.lng);
+			//window.windmapUI.changePointDetail(latlng.lat, latlng.lng);
 
 		}else{
 			this._pointMarker = L.marker(
@@ -227,7 +213,7 @@ L.Windmap = L.Class.extend({
 			).addTo(this._map);
 
 			this._pointMarker.on('dragend', this.updatePointValue, this);
-			this._pointMarker.on('click', this.showPointDetail, this);
+			//this._pointMarker.on('click', this.showPointDetail, this);
 		}
 	},
 	

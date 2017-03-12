@@ -13,13 +13,14 @@ L.Grib2tile = L.GridLayer.extend({
 	options: {
 		bounds: new L.latLngBounds([22.4, 120.0], [47.6, 150.0]),
 		tileZoom: [1, 2],
-		tileSize: new L.Point(241, 253)
+		tileSize: new L.Point(300, 316)
 	},
 
 	initialize: function (url, element, options) {
 		this._url = url;
 		options = L.setOptions(this, options);
 
+		this._bitmap = true;
 		this.element = element || "wind";
 
 		// tile bounds lat / lon
@@ -58,6 +59,8 @@ L.Grib2tile = L.GridLayer.extend({
 		var y = Math.floor((p0.lat - lat) / dlat);
 		var dx = (lng - (p0.lng + dlng * x)) / dlng;
 		var dy = ((p0.lat - dlat * y) - lat) / dlat;
+
+		if (this.x(x, y) == null) return null;
 
 		return this._bilinearInterpolate(
 			dx, dy,
@@ -98,6 +101,8 @@ L.Grib2tile = L.GridLayer.extend({
 		var dx = (lng - (p0.lng + dlng * x)) / dlng;
 		var dy = ((p0.lat - dlat * y) - lat) / dlat;
 
+		if (this.v(x, y) == null) return [null, null];
+
 		return this._bilinearInterpolateVector(
 			dx, dy,
 			this.v(x, y), this.v(x+1, y), this.v(x, y+1), this.v(x+1, y+1)
@@ -116,6 +121,7 @@ L.Grib2tile = L.GridLayer.extend({
 	getVectorXY: function (X, Y) {
 		var x = X[0], y = Y[0], dx = X[1], dy = Y[1];
 		if (x == null || y == null) return [ null, null ];
+		if (this.v(x, y) == null) return [null, null];
 		
 		return this._bilinearInterpolateVector(
 			dx, dy,
@@ -126,6 +132,7 @@ L.Grib2tile = L.GridLayer.extend({
 	getValueXY: function (X, Y) {
 		var x = X[0], y = Y[0], dx = X[1], dy = Y[1];
 		if (x == null || y == null) return null;
+		if (this.x(x, y) == null) return null;
 		
 		return this._bilinearInterpolate(
 			dx, dy,
@@ -425,7 +432,7 @@ L.Grib2tile = L.GridLayer.extend({
 		var key = this._tileCoordsToKey(coords),
 			url = this._getTileUrl(coords);
 
-		var gt = new Grib2tile(url, this._tnx, this._tny);
+		var gt = new Grib2tile(url, this._tnx, this._tny, this._bitmap);
 		gt.coords = coords;
 		this._tiles[key] = gt;
 
