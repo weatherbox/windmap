@@ -19,7 +19,7 @@ L.Windmap = L.Class.extend({
 
 		this.data = {
 			//url: "http://msm-tiles.s3-website-ap-northeast-1.amazonaws.com/tiles/201703120300/{valid_time}/{level}/{e}/{z}/{x}_{y}.bin"
-			url: "http://localhost:10080/weatherbox/windmap/lfm/tiles/201702170100/201702170100/{level}/{e}/{z}/{x}_{y}.bin"
+			url: "http://localhost:10080/weatherbox/grib2tiles/functions/lfm/tiles/201702170000/201702170100/{level}/{e}/{z}/{x}_{y}.bin"
 		};
 
 		// init windmap elements
@@ -128,6 +128,7 @@ L.Windmap = L.Class.extend({
 		this._updateWindGrib();
 		if (this._maskGrib) this._updateMaskGrib();
 		this._streamline._update();
+		console.log(this._maskGrib);
 	},
 	
 	_getTileJson: function (callback) {
