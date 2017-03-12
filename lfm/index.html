@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8 />
+		<title>Windmap</title>
+		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+		<link rel="stylesheet" href="../lib/leaflet-v1.0.2.css" />
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css"></link>
+		<link rel="stylesheet" href="../components/app.css"></link>
+		<style>
+			body { margin:0; padding:0; }
+			#map { position:absolute; top:0; bottom:0; width:100%; z-index:1; cursor:default; background:#202020; }
+		</style>
+	</head>
+	<body>
+		<div id='map'></div>
+		<div id='app'></div>
+
+		<script src="../lib/leaflet-v1.0.2.js"></script>
+		<script src="../lib/chroma.min.js"></script>
+		<script src="../streamline.js/streamline.js"></script>
+		<script src="../streamline.js/leaflet-streamline.js"></script>
+		<script src="../grib2tiles/grib2tile.js"></script>
+		<script src="leaflet-grib2tile.js"></script>
+		<script src="leaflet-windmap.js"></script>
+		<script src="../lib/jquery-1.8.2.min.js"></script>
+		<script src="bundle-lfm.js"></script>
+		<script>
+			$(function() {
+				var map_id = 'tattii.77d8c7e1';
+				var token = 'pk.eyJ1IjoidGF0dGlpIiwiYSI6ImxKQ1hwOXcifQ.xGx4WsNt9GMqbZ0T5A7C8Q';
+				var mapboxTiles = new L.tileLayer('//{s}.tiles.mapbox.com/v4/' + map_id + '/{z}/{x}/{y}{r}.png?access_token=' + token);
+				var map = new L.map('map', {
+						center: [36.5, 137.6],
+						zoom: 5,
+						minZoom: 5,
+						maxZoom: 13,
+						attributionControl: false,
+						zoomControl: false
+					})
+					.addLayer(mapboxTiles);
+
+				var windmap = new L.Windmap(map);
+
+				window.map = map;
+				window.windmap = windmap;
+			});
+		</script>
+	</body>
+</html>
