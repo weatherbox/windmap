@@ -12,6 +12,7 @@ const style = {
 const options = [
 	{ value: 'wind', text: 'Wind' },
 	{ value: 'temp', text: 'Temperature' },
+	{ value: 'humidity', text: 'Humidity' },
 	{ value: 'cloud', text: 'Cloud' },
 	{ value: 'rain', text: 'Rain' },
 	{ value: 'press', text: 'Pressure' },

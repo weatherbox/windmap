@@ -259,6 +259,8 @@ L.Grib2tile = L.GridLayer.extend({
 					var vkey = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:"VGRD" });
 					var u, v;
 
+					if (!this._tiles[ukey].data || !this._tiles[vkey].data) return this._callback(this);
+
 					for (var iy = iy1; iy <= iy2; iy++){
 						offset = this._tnx * iy;
 						u = this._tiles[ukey].data.subarray(offset + ix1, offset + ix2 + 1);
@@ -272,6 +274,8 @@ L.Grib2tile = L.GridLayer.extend({
 				}else{
 					var key = this._tileCoordsToKey({ x:itx, y:ity, z:this._tileZoom, e:this.element });
 					var x;
+
+					if (!this._tiles[key].data) return this._callback(this);
 
 					for (var iy = iy1; iy <= iy2; iy++){
 						offset = this._tnx * iy;
