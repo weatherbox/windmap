@@ -8,7 +8,6 @@
  * requirements:
  *   leaflet-streamline.js
  *   streamline.js
- *   jQuery
  */
 
 L.Windmap = L.Class.extend({
@@ -21,7 +20,7 @@ L.Windmap = L.Class.extend({
 		L.setOptions(this, options);
 
 		var self = this;
-		this._getTileJson(function (data) {
+		this._getJSON(this.options.tileJson, function (data) {
 			self.data = data;
 
 			// init time
@@ -145,10 +144,17 @@ L.Windmap = L.Class.extend({
 		this._streamline._update();
 	},
 	
-	_getTileJson: function (callback) {
-		$.getJSON(this.options.tileJson, function (data) {
-			callback(data);
-		});
+	// substitute $.getJSON
+	_getJSON: function (url, callback){
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+			if ((xhr.readyState === 4) && (xhr.status === 200)) {
+				var data = JSON.parse(xhr.responseText);
+				callback(data);
+			}
+		}
+		xhr.open("GET", url, true);
+		xhr.send(null);	
 	},
 
 
