@@ -8,7 +8,6 @@
  * requirements:
  *   leaflet-streamline.js
  *   streamline.js
- *   jQuery
  */
 
 L.Windmap = L.Class.extend({
@@ -130,12 +129,6 @@ L.Windmap = L.Class.extend({
 		console.log(this._maskGrib);
 	},
 	
-	_getTileJson: function (callback) {
-		$.getJSON(this.options.tileJson, function (data) {
-			callback(data);
-		});
-	},
-
 
 	/*
 	 * PointValue - marker on map

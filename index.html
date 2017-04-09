@@ -24,28 +24,25 @@
 		<script src="grib2tiles/grib2tile.js"></script>
 		<script src="leaflet-grib2tile.js"></script>
 		<script src="leaflet-windmap.js"></script>
-		<script src="lib/jquery-1.8.2.min.js"></script>
 		<script src="bundle.js"></script>
 		<script>
-			$(function() {
-				var map_id = 'tattii.77d8c7e1';
-				var token = 'pk.eyJ1IjoidGF0dGlpIiwiYSI6ImxKQ1hwOXcifQ.xGx4WsNt9GMqbZ0T5A7C8Q';
-				var mapboxTiles = new L.tileLayer('//{s}.tiles.mapbox.com/v4/' + map_id + '/{z}/{x}/{y}{r}.png?access_token=' + token);
-				var map = new L.map('map', {
-						center: [36.5, 137.6],
-						zoom: 5,
-						minZoom: 5,
-						maxZoom: 13,
-						attributionControl: false,
-						zoomControl: false
-					})
-					.addLayer(mapboxTiles);
+			var map_id = 'tattii.77d8c7e1';
+			var token = 'pk.eyJ1IjoidGF0dGlpIiwiYSI6ImxKQ1hwOXcifQ.xGx4WsNt9GMqbZ0T5A7C8Q';
+			var mapboxTiles = new L.tileLayer('//{s}.tiles.mapbox.com/v4/' + map_id + '/{z}/{x}/{y}{r}.png?access_token=' + token);
+			var map = new L.map('map', {
+					center: [36.5, 137.6],
+					zoom: 5,
+					minZoom: 5,
+					maxZoom: 13,
+					attributionControl: false,
+					zoomControl: false
+				})
+				.addLayer(mapboxTiles);
 
-				var windmap = new L.Windmap(map);
+			var windmap = new L.Windmap(map);
 
-				window.map = map;
-				window.windmap = windmap;
-			});
+			window.map = map;
+			window.windmap = windmap;
 		</script>
 	</body>
 </html>
