@@ -43,7 +43,7 @@ L.Windmap = L.Class.extend({
 		});
 
 		// set click event
-		map.on("click", this.showPointValue, this);
+		this._onSingleClick();
 	},
 	
 	setTime: function (utc){
@@ -169,6 +169,30 @@ L.Windmap = L.Class.extend({
 		}
 	},
 
+	// ignore dblclick event
+	_onSingleClick: function (){
+		var self = this;
+		this._clickTimer = null;
+		this._dblclickTime = 0;
+
+		this._map.on('click', function (e){
+			// avoid click with dblclick
+			if ((Date.now() - self._dblclickTime) < 100) return;
+
+			self._clickTimer = setTimeout(function(){
+				self.showPointValue(e);
+			}, 300);
+		});
+
+		this._map.on('dblclick', function (e){
+			self._dblclickTime = Date.now();
+			if (self._clickTimer){
+				clearTimeout(self._clickTimer);
+				self._clickTimer = null;
+			}
+		});
+	},
+
 	updatePointValue: function () {
 		var latlng = this._pointMarker.getLatLng();
 
@@ -254,12 +278,7 @@ L.Windmap = L.Class.extend({
 	showPointDetail: function (e){
 		var ep = e.originalEvent;
 		var p = this._pointMarker.getLatLng();
-		var pp = this._map.latLngToLayerPoint(p);
-
-		// check click point (avoid double click zooming)
-		if (Math.abs(ep.x - pp.x) > 10 || Math.abs(ep.y - pp.y) > 10){
-			window.windmapUI.showPointDetail(p.lat, p.lng);
-		}
+		window.windmapUI.showPointDetail(p.lat, p.lng);
 	},
 	
 	hidePointValue: function() {
