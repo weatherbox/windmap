@@ -257,7 +257,7 @@ L.Windmap = L.Class.extend({
 		var pp = this._map.latLngToLayerPoint(p);
 
 		// check click point (avoid double click zooming)
-		if (Math.abs(ep.x - pp.x) > 10 || Math.abs(ep.y - pp.y) > 10){
+		if (Math.abs(ep.x - pp.x) > 10 && Math.abs(ep.y - pp.y) > 20){
 			window.windmapUI.showPointDetail(p.lat, p.lng);
 		}
 	},
