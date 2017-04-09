@@ -95,7 +95,7 @@ L.Windmap = L.Class.extend({
 	},
 
 	_initGrib2tile: function (element){
-		var level = (!element || element == "TMP") ? this.level : "surface";
+		var level = (!element || element == "TMP" || element == "RH") ? this.level : "surface";
 		var url = this.data.url
 			.replace("{valid_time}", this.dateString(this.time))
 			.replace("{level}", level);
