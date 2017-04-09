@@ -56,6 +56,7 @@ L.Windmap = L.Class.extend({
 		var code = {
 			wind: "wind",
 			temp: "TMP",
+			humidity: "RH",
 			cloud: "TCDC",
 			rain: "APCP",
 			press: "PRMSL"
@@ -198,6 +199,9 @@ L.Windmap = L.Class.extend({
 		}else if (this.element == "TMP"){
 			return (v - 273.15).toFixed(1) + "℃";
 
+		}else if (this.element == "RH"){
+			return v.toFixed(0) + "%";
+
 		}else if (this.element == "TCDC"){
 			return v.toFixed(0) + "%";
 
@@ -304,6 +308,14 @@ L.Windmap = L.Class.extend({
 
 			return function (v){
 				return tempColorScale(v, MASK_ALPHA);
+			}
+
+		}else if (element == 'RH'){  // relative humidity
+			let presColorScale = chroma.scale('RdYlBu').domain([0,1]);
+
+			return function (v){
+				let c = presColorScale(v/100).rgb();
+				return [c[0], c[1], c[2], MASK_ALPHA];
 			}
 
 		}else if (element == 'TCDC'){  // total cloud cover
