@@ -17,7 +17,7 @@ L.Windmap = L.Class.extend({
 		L.setOptions(this, options);
 
 		this.data = {
-			url: "http://msm-tiles.s3-website-ap-northeast-1.amazonaws.com/lfm-tiles/201702170000/201702170100/{level}/{e}/{z}/{x}_{y}.bin"
+			url: "https://s3-ap-northeast-1.amazonaws.com/msm-tiles/lfm-tiles/201702170000/201702170100/{level}/{e}/{z}/{x}_{y}.bin"
 		};
 
 		// init windmap elements
@@ -80,6 +80,7 @@ L.Windmap = L.Class.extend({
 	_initGrib2tile: function (element){
 		var level = (!element || element == "TMP") ? this.level : "surface";
 		var url = this.data.url
+      .replace("http", "https")
 			.replace("{valid_time}", this.dateString(this.time))
 			.replace("{level}", level);
 

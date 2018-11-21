@@ -12,7 +12,7 @@
 
 L.Windmap = L.Class.extend({
 	options: {
-		tileJson: "http://msm-tiles.s3-website-ap-northeast-1.amazonaws.com/tiles/tile.json"
+		tileJson: "https://s3-ap-northeast-1.amazonaws.com/msm-tiles/tiles/tile.json"
 	},
 
 	initialize: function (map, options) {
@@ -96,6 +96,7 @@ L.Windmap = L.Class.extend({
 	_initGrib2tile: function (element){
 		var level = (!element || element == "TMP" || element == "RH") ? this.level : "surface";
 		var url = this.data.url
+      .replace("http", "https")
 			.replace("{valid_time}", this.dateString(this.time))
 			.replace("{level}", level);
 
