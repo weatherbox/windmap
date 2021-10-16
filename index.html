@@ -5,6 +5,7 @@
 		<title>Windmap</title>
 		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 		<link rel="stylesheet" href="lib/leaflet-v1.0.2.css" />
+		<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.css' rel='stylesheet' />
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css"></link>
 		<link rel="stylesheet" href="components/app.css"></link>
 		<link rel="stylesheet" href="components/meteogram/src/MeteogramSky.css"></link>
@@ -19,6 +20,8 @@
 
 		<script src="lib/leaflet-v1.0.2.js"></script>
 		<script src="lib/leaflet-hash.js"></script>
+		<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.js'></script>
+		<script src="https://unpkg.com/mapbox-gl-leaflet/leaflet-mapbox-gl.js"></script>
 		<script src="lib/chroma.min.js"></script>
 		<script src="streamline.js/streamline.js"></script>
 		<script src="streamline.js/leaflet-streamline.js"></script>
@@ -27,9 +30,7 @@
 		<script src="leaflet-windmap.js"></script>
 		<script src="bundle.js"></script>
 		<script>
-			var map_id = 'tattii.77d8c7e1';
 			var token = 'pk.eyJ1IjoidGF0dGlpIiwiYSI6ImxKQ1hwOXcifQ.xGx4WsNt9GMqbZ0T5A7C8Q';
-			var mapboxTiles = new L.tileLayer('//{s}.tiles.mapbox.com/v4/' + map_id + '/{z}/{x}/{y}{r}.png?access_token=' + token);
 			var map = new L.map('map', {
 					center: [36.5, 137.6],
 					zoom: 5,
@@ -37,14 +38,41 @@
 					maxZoom: 13,
 					attributionControl: false,
 					zoomControl: false
-				})
-				.addLayer(mapboxTiles);
-
-			var windmap = new L.Windmap(map);
+				});
 			var hash = new L.Hash(map);
 
-			window.map = map;
-			window.windmap = windmap;
+			var basemap = L.mapboxGL({
+				accessToken: token,
+				style: 'mapbox://styles/tattii/ckr53v7t0126217tg01u80p0q'
+			}).addTo(map);
+			var basemapgl = basemap.getMapboxMap();
+			basemapgl.on("load", function () {
+				window.windmap = new L.Windmap(map);
+				window.map = map;
+
+				basemapgl.addSource("vt", {
+					"type": "vector",
+					"minzoom": 0,
+					"maxzoom": 10,
+					"tiles": ["https://weatherbox.github.io/warning-area-vt/v2/{z}/{x}/{y}.pbf"],
+					"attribution": '<a href="https://www.data.jma.go.jp/developer/gis.html" target="_blank">気象庁GISデータ</a>'
+				});
+
+				basemapgl.addLayer({
+					"id": "warning-area",
+					"type": "line",
+					"source": "vt",
+					"source-layer": "pref",
+					"paint": {
+						"line-color": "rgba(200, 200, 200, 0.97)",
+						"line-width": {
+							"base": 1.5,
+							"stops": [[4, 0.2], [8, 0.5]]
+						}
+					}
+				});
+			});
+	
 		</script>
 	</body>
 </html>
